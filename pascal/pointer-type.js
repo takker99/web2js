@@ -1,15 +1,24 @@
-'use strict';
-var Binaryen = require('binaryen');
+import Binaryen from 'binaryen';
+const { i32,  } = Binaryen;
 
-module.exports = class PointerType {
+export default class PointerType {
+  /**
+   * @param {any} referent
+   */
   constructor(referent) {
     this.referent = referent;
   }
 
-  binaryen(e) {
-    return Binaryen.i32;
+  /**
+   * @param {unknown} _
+   */
+  binaryen(_) {
+    return i32;
   }
 
+  /**
+   * @param {{ referent: any; }} other
+   */
   matches(other) {
     if (other.referent) {
       return this.referent.matches(other.referent);
@@ -18,7 +27,10 @@ module.exports = class PointerType {
     return false;
   }
 
-  bytes(e) {
+  /**
+   * @param {unknown} _
+   */
+  bytes(_) {
     return 4;
   }
 };

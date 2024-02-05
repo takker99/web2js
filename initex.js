@@ -1,23 +1,23 @@
-var fs = require('fs');
-var library = require('./library');
+import { readFileSync, writeFileSync } from 'fs';
+import library, { setInput, setMemory, setWasmExports } from './library';
 
-var binary = fs.readFileSync('tex-async.wasm');
+var binary = readFileSync('tex-async.wasm');
 
 var code = new WebAssembly.Module(binary);
 
 var pages = 2500;
 var memory = new WebAssembly.Memory({initial: pages, maximum: pages});
 
-library.setInput("*latex.ltx\n\\dump\n\n",
+setInput("*latex.ltx\n\\dump\n\n",
                  function() {
                  });
-library.setMemory(memory.buffer);
+setMemory(memory.buffer);
 
 var wasm = new WebAssembly.Instance(code, { library: library,
                                             env: { memory: memory } } );
 
 const wasmExports = wasm.exports;
-library.setWasmExports( wasmExports );
+setWasmExports( wasmExports );
 
 wasm.exports.main();
 
@@ -129,17 +129,16 @@ preamble = "\\def\\pgfsysdriver{pgfsys-ximera.def}\\PassOptionsToPackage{dvisvgm
 
 preamble = preamble + "\\documentclass{ximera}\\renewcommand{\\documentclass}[2][]{}\\snapshot\n";
 
-library.setMemory(memory.buffer);
-library.setInput("\n&latex\n" + preamble + "\n\n\n",
+setMemory(memory.buffer);
+setInput("\n&latex\n" + preamble + "\n\n\n",
                  function() {
                    var buffer = new Uint8Array( memory.buffer );
-                   fs.writeFileSync('core.dump', buffer);
+                   writeFileSync('core.dump', buffer);
                    process.exit();
                  });
-                   
+
 var wasm = new WebAssembly.Instance(code, { library: library,
                                             env: { memory: memory } } );
 
 console.log( wasm.exports );
 wasm.exports.main();
-

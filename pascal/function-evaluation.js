@@ -1,9 +1,10 @@
-'use strict';
-var Binaryen = require('binaryen');
-var Identifier = require('./identifier.js');
-var PointerType = require('./pointer-type.js');
 
-module.exports = class FunctionEvaluation {
+import Binaryen from 'binaryen';
+const { i32,  none} = Binaryen;
+import Identifier from './identifier.js';
+import PointerType from './pointer-type.js';
+
+export default class FunctionEvaluation {
   constructor(f,xs) {
     this.f = f;
     this.xs = xs;
@@ -13,7 +14,7 @@ module.exports = class FunctionEvaluation {
     var module = environment.module;
 
     var name = this.f.name;
-    
+
     if (name.toLowerCase() == "trunc") {
       this.type = new Identifier("integer");
       return module.i32.trunc_s.f32(this.xs[0].generate(environment));
@@ -22,12 +23,12 @@ module.exports = class FunctionEvaluation {
     if (name.toLowerCase() == "abs") {
       var x = this.xs[0];
       var e = x.generate(environment);
-      
+
       if (x.type.name == "real") {
         this.type = new Identifier("real");
         return module.f32.abs(e);
       }
-      
+
       if (x.type.isInteger()) {
         this.type = new Identifier("integer");
         return module.if( module.i32.ge_s( e, module.i32.const(0) ),
@@ -52,7 +53,7 @@ module.exports = class FunctionEvaluation {
     if (name.toLowerCase() == "ord") {
       this.type = new Identifier("integer");
       return this.xs[0].generate(environment);
-    }    
+    }
 
     if (name.toLowerCase() == "odd") {
       this.type = new Identifier("boolean");
@@ -60,14 +61,14 @@ module.exports = class FunctionEvaluation {
       // https://en.wikipedia.org/wiki/Modulo_operation#Common_pitfalls
       return module.i32.ne( module.i32.rem_s( n, module.i32.const(2) ), module.i32.const(0) );
     }
-    
+
     if (name.toLowerCase() == "erstat") {
       this.type = new Identifier("integer");
 
       var file = this.xs[0];
 
       return module.call( "erstat", [file.generate(environment)],
-                          Binaryen.i32 );
+                          i32 );
     }
 
     if (name.toLowerCase() == "eoln") {
@@ -76,8 +77,8 @@ module.exports = class FunctionEvaluation {
       var file = this.xs[0];
 
       return module.call( "eoln", [file.generate(environment)],
-                          Binaryen.i32 );
-    }    
+                          i32 );
+    }
 
     if (name.toLowerCase() == "eof") {
       this.type = new Identifier("boolean");
@@ -85,7 +86,7 @@ module.exports = class FunctionEvaluation {
       var file = this.xs[0];
 
       return module.call( "eof", [file.generate(environment)],
-                          Binaryen.i32 );
+                          i32 );
     }
 
     if (name.toLowerCase() == "inputln_actual") {
@@ -98,38 +99,38 @@ module.exports = class FunctionEvaluation {
       var last = this.xs[4];
       var max_buf_stack = this.xs[5];
       var buf_size = this.xs[6];
-      
+
       buffer.generate(environment);
       first.generate(environment);
       last.generate(environment);
       max_buf_stack.generate(environment);
-      
+
       return module.call( "inputln", [file.generate(environment),
                                       bypass_eoln.generate(environment),
                                       buffer.variable.pointer(),
                                       first.variable.pointer(),
-                                      last.variable.pointer(),                                      
+                                      last.variable.pointer(),
                                       max_buf_stack.variable.pointer(),
                                       buf_size.generate(environment),
                                      ],
-                          Binaryen.i32 );
-    }    
+                          i32 );
+    }
 
     if (name.toLowerCase() == "snapshot") {
       this.type = new Identifier("integer");
-      return module.call( "snapshot", [], Binaryen.i32 );
+      return module.call( "snapshot", [], i32 );
     }
-    
+
     if (name.toLowerCase() == "getfilesize") {
       this.type = new Identifier("integer");
-      
+
       var filename = this.xs[0];
       var filenameExp = filename.generate(environment);
       return module.call( "getfilesize", [module.i32.const(filename.type.index.range()),
                                             filename.variable.pointer()],
-                            Binaryen.i32 );
+                            i32 );
     }
-    
+
     var offset = 0;
     var commands = [];
     var stack = environment.program.stack;
@@ -141,7 +142,7 @@ module.exports = class FunctionEvaluation {
       //this.type = new Identifier("integer");
       //return module.i32.const(17);
     }
-    
+
     this.type = theFunction.resultType;
 
     var params = environment.resolveFunction( this.f ).params;
@@ -156,7 +157,7 @@ module.exports = class FunctionEvaluation {
         types.push( type );
       }
     }
-    
+
     this.xs.forEach( function(p) {
       var exp = p.generate(environment);
 
@@ -166,32 +167,32 @@ module.exports = class FunctionEvaluation {
       if (! type.matches( environment.resolveType( p.type ) ) ) {
         throw `Type mismatch for ${type} in call to ${name}`;
       }
-      
+
       if (referenced)
         type = new PointerType(type);
-      
+
       commands.push( stack.extend( type.bytes() ) );
-      
+
       exp = p.generate(environment);
       var v = undefined;
-      
+
       if (referenced) {
-        v = environment.program.memory.variable( null, type, 0, module.global.get( "stack", Binaryen.i32 ) );
+        v = environment.program.memory.variable( null, type, 0, module.global.get( "stack", i32 ) );
         commands.push( v.set( p.variable.pointer() ) );
       } else {
-        v = environment.program.memory.variable( null, type, 0, module.global.get( "stack", Binaryen.i32 ) );
+        v = environment.program.memory.variable( null, type, 0, module.global.get( "stack", i32 ) );
         commands.push( v.set( exp ) );
       }
     } );
-    
+
     if (environment.resolveFunction( this.f ) === undefined) {
       throw `Function ${name} is not defined.`;
     }
 
-    var resultType = Binaryen.none;
+    var resultType = none;
 
     if (this.type !== undefined) {
-      var t = environment.resolveType( this.type );      
+      var t = environment.resolveType( this.type );
       resultType = t.binaryen();
 
       if (resultType === undefined) {
@@ -200,7 +201,7 @@ module.exports = class FunctionEvaluation {
     }
 
     commands.push( module.call( name, [], resultType ) );
-        
+
     if (this.type !== undefined)
       return module.block( null, commands, resultType );
     else

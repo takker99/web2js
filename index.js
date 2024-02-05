@@ -1,4 +1,4 @@
-var Lexer = require('flex-js');
+import Lexer from 'flex-js';
 
 var lexer = new Lexer();
 
@@ -143,11 +143,11 @@ lexer.addRule(/{IDENTIFIER}/		, function(lexer) {
 
 lexer.addRule(/./		, function(lexer) { return '..'; } );
 
-var fs = require('fs');
-var code = fs.readFileSync(process.argv[2]).toString();
+import { readFileSync, writeFileSync, writeSync, openSync, closeSync, readSync } from 'fs';
+var code = readFileSync(process.argv[2]).toString();
 lexer.setSource(code);
 
-var parser = require('./parser').parser;
+import { parser } from './parser';
 
 parser.lexer = {
   lex: function () {
@@ -171,7 +171,7 @@ var module = program.generate();
 
 
 //fs.writeFileSync( "tex.wast", module.emitText() );
-fs.writeFileSync( "tex.wabt", module.emitBinary() );
+writeFileSync( "tex.wabt", module.emitBinary() );
 
 // Get the binary in typed array form
 var binary = module.emitBinary();
@@ -204,10 +204,10 @@ var library = {
       return;
     }
 
-    fs.writeSync( file.descriptor, string );    
+    writeSync( file.descriptor, string );
   },
   printBoolean: function(descriptor, x) {
-    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];    
+    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];
 
     var result = x ? "TRUE" : "FALSE";
 
@@ -216,10 +216,10 @@ var library = {
       return;
     }
 
-    fs.writeSync( file.descriptor, result );    
+    writeSync( file.descriptor, result );
   },
   printChar: function(descriptor, x) {
-    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];        
+    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];
     if (file.stdout) {
       process.stdout.write(String.fromCharCode(x));
       return;
@@ -227,34 +227,34 @@ var library = {
 
     var b = Buffer.alloc(1);
     b[0] = x;
-    fs.writeSync( file.descriptor, b );
+    writeSync( file.descriptor, b );
   },
   printInteger: function(descriptor, x) {
-    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];            
+    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];
     if (file.stdout) {
       process.stdout.write(x.toString());
       return;
     }
 
-    fs.writeSync( file.descriptor, x.toString());
+    writeSync( file.descriptor, x.toString());
   },
   printFloat: function(descriptor, x) {
-    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];                
+    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];
     if (file.stdout) {
       process.stdout.write(x.toString());
       return;
     }
 
-    fs.writeSync( file.descriptor, x.toString());    
+    writeSync( file.descriptor, x.toString());
   },
   printNewline: function(descriptor, x) {
-    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];                    
+    var file = (descriptor < 0) ? {stdout:true} : files[descriptor];
     if (file.stdout) {
       process.stdout.write("\n");
       return;
     }
 
-    fs.writeSync( file.descriptor, "\n");    
+    writeSync( file.descriptor, "\n");
   },
 
   enterFunction: function(x, stack) {
@@ -270,7 +270,7 @@ var library = {
       console.log("stack=",stack,"versus",old);
     }
     //console.log("leave",program.traces[x]);
-  },  
+  },
 };
 
 var inputBuffer = "\nplain\n\\input sample\n";
@@ -285,9 +285,9 @@ var filesystemLibrary = {
     var filename = String.fromCharCode.apply(null, buffer);
 
     //console.log( filename );
-    
+
     filename = filename.replace(/ +$/g,'');
-    filename = filename.replace(/^TeXfonts:/,'fonts/');    
+    filename = filename.replace(/^TeXfonts:/,'fonts/');
 
     if (filename == 'TeXformats:TEX.POOL')
       filename = "tex.pool";
@@ -303,18 +303,18 @@ var filesystemLibrary = {
     files.push({
       filename: filename,
       position: 0,
-      descriptor: fs.openSync(filename,'r'),
+      descriptor: openSync(filename,'r'),
     });
-    
+
     return files.length - 1;
   },
 
   rewrite: function(length, pointer) {
     var buffer = new Uint8Array( memory.buffer, pointer, length );
-    var filename = String.fromCharCode.apply(null, buffer);    
-    
-    filename = filename.replace(/ +$/g,'');    
-    
+    var filename = String.fromCharCode.apply(null, buffer);
+
+    filename = filename.replace(/ +$/g,'');
+
     if (filename == "TTY:") {
       files.push({ filename: "stdout",
                    stdout: true
@@ -325,9 +325,9 @@ var filesystemLibrary = {
     files.push({
       filename: filename,
       position: 0,
-      descriptor: fs.openSync(filename,'w')
+      descriptor: openSync(filename,'w')
     });
-    
+
     return files.length - 1;
   },
 
@@ -335,14 +335,14 @@ var filesystemLibrary = {
     var file = files[descriptor];
 
     if (file.descriptor)
-      fs.closeSync( file.descriptor );
+      closeSync( file.descriptor );
 
     files[descriptor] = {};
   },
 
   eof: function(descriptor) {
     var file = files[descriptor];
-    
+
     if (file.eof)
       return 1;
     else
@@ -357,19 +357,19 @@ var filesystemLibrary = {
     else
       return 0;
   },
-    
+
   get: function(descriptor, pointer, length) {
     var file = files[descriptor];
-    
+
     var buffer = new Uint8Array( memory.buffer );
-    
+
     if (file.stdin) {
       if (file.position >= inputBuffer.length)
 	buffer[pointer] = 13;
       else
 	buffer[pointer] = inputBuffer[file.position].charCodeAt(0);
     } else {
-      if (fs.readSync( file.descriptor, buffer, pointer, length, file.position ) == 0) {
+      if (readSync( file.descriptor, buffer, pointer, length, file.position ) == 0) {
         buffer[pointer] = 0;
         file.eof = true;
         file.eoln = true;
@@ -388,10 +388,10 @@ var filesystemLibrary = {
 
   put: function(descriptor, pointer, length) {
     var file = files[descriptor];
-    
+
     var buffer = new Uint8Array( memory.buffer );
 
-    fs.writeSync( file.descriptor, buffer, pointer, length );
+    writeSync( file.descriptor, buffer, pointer, length );
   },
 
 };

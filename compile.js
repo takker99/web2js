@@ -1,5 +1,5 @@
-var Lexer = require('flex-js');
-var Binaryen = require('binaryen');
+import Lexer from 'flex-js';
+import Binaryen from 'binaryen';
 
 var lexer = new Lexer();
 
@@ -141,12 +141,12 @@ lexer.addRule(/{IDENTIFIER}/		, function(lexer) {
 
 lexer.addRule(/./		, function(lexer) { return '..'; } );
 
-var fs = require('fs');
+import { readFileSync, writeFileSync } from 'fs';
 var filename = process.argv[2];
-var code = fs.readFileSync(process.argv[2]).toString();
+var code = readFileSync(process.argv[2]).toString();
 lexer.setSource(code);
 
-var parser = require('./parser').parser;
+import { parser } from './parser.js';
 
 parser.lexer = {
   lex: function () {
@@ -168,7 +168,7 @@ var module = program.generate();
 
 //module.runPasses(["remove-unused-brs","pick-load-signs","precompute","precompute-propagate","code-pushing","duplicate-function-elimination","inlining-optimizing","dae-optimizing","generate-stack-ir","optimize-stack-ir"]);
 
-fs.writeFileSync( process.argv[3], module.emitBinary() );
+writeFileSync( process.argv[3], module.emitBinary() );
 
 console.log("Using ", program.memory.memorySize, "bytes" );
 var neededPages = Math.ceil(program.memory.memorySize / 65536);

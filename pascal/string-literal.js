@@ -1,10 +1,10 @@
-'use strict';
-var Identifier = require('./identifier.js');
 
-module.exports = class StringLiteral {
+import Identifier from './identifier.js';
+
+export default class StringLiteral {
   constructor(text) {
     this.text = text.replace(/^'/,'').replace(/'$/,'').replace(/''/,"'");
-    this.type = new Identifier('string');    
+    this.type = new Identifier('string');
   }
 
   generate(environment) {

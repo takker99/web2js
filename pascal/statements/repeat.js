@@ -1,17 +1,26 @@
-'use strict';
-
 var count = 1;
 
-module.exports = class Repeat {
+/** @typedef{import("../statement.js").Statement} Statement */
+
+/** @implements{Statement} */
+export default class Repeat {
+  /**
+   * @param {any} expression
+   * @param {Statement} statement
+   */
   constructor(expression, statement) {
     this.expression = expression;
     this.statement = statement;
   }
 
+  /** @returns {string[]} */
   gotos() {
     return this.statement.gotos();
   }
 
+  /**
+   * @param {import("../environment.js").default} environment
+   */
   generate(environment) {
     var module = environment.module;
 

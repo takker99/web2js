@@ -1,11 +1,18 @@
-'use strict';
 
-module.exports = class Desig {
+
+export default class Desig {
+  /**
+   * @param {Desig | import("./operation.js").default | import("./pointer.js").default} target
+   * @param {import("./array-index.js").default | import("./numeric-literal.js").default} desig
+   */
   constructor(target, desig) {
     this.target = target;
     this.desig = desig;
   }
 
+  /**
+   * @param {import("./environment.js").default} environment
+   */
   generate(environment) {
     // Split a desig into individual desigs
 
@@ -17,7 +24,7 @@ module.exports = class Desig {
     var variable = this.target.variable;
     var type = environment.resolveType( this.target.type );
     var module = environment.module;
-    
+
     // Handle arrays
     if (type.componentType) {
       var index = this.desig.generate( environment );
@@ -32,7 +39,7 @@ module.exports = class Desig {
 
     if (type.fields) {
       var offset = 0;
-      
+
       for( var i in type.fields ) {
         var f = type.fields[i];
 
@@ -61,7 +68,7 @@ module.exports = class Desig {
           offset += maxOffset;
         }
 
-        if (f.type) {          
+        if (f.type) {
           for( var n in f.names ) {
             var name = f.names[n];
             if (name.name == this.desig.name) {
@@ -77,9 +84,9 @@ module.exports = class Desig {
 
       throw `Could not find field ${this.desig.name}`;
     }
-    
+
     this.type = type;
     return variable.get();
   }
-  
+
 };

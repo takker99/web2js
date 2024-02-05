@@ -1,15 +1,20 @@
-'use strict';
-var Binaryen = require('binaryen');
-var Environment = require('../environment.js');
+import Environment from '../environment.js';
 
-module.exports = class Nop {
+/** @typedef{import("../statement.js").Statement} Statement */
+
+/** @implements{Statement} */
+export default class Nop {
   constructor() {
   }
 
+  /** @returns {string[]} */
   gotos() {
     return [];
   }
 
+  /**
+   * @param {Environment} environment
+   */
   generate(environment) {
     environment = new Environment(environment);
     var m = environment.module;

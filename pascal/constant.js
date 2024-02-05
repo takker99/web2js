@@ -1,10 +1,17 @@
-'use strict';
 
-module.exports = class Constant {
+export default class Constant {
+  /**
+   * @param {string|number} name
+   */
   constructor(name) {
     this.name = name;
   }
 
+
+  /**
+   * @param {import("./environment.js").default} environment
+   * @returns {string}
+   */
   generate(environment) {
     var c = environment.resolveConstant(this);
 

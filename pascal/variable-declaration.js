@@ -1,6 +1,6 @@
-'use strict';
 
-module.exports = class VariableDeclaration {
+
+export default class VariableDeclaration {
   constructor(names,type) {
     this.names = names;
     this.type = type;
@@ -18,14 +18,14 @@ module.exports = class VariableDeclaration {
       }
       return code;
     }
-    
+
     //var varName = this.names[0].generate(block);
     var varName = this.names[0].name;
 
     var t = block.resolveType(this.type);
 
     var code = `var ${varName} = ${t.initializer(block)}; /* has type ${t.generate(block)} */`;
-    
+
     if (t.componentType == undefined && t.fields == undefined)
       return code;
 
@@ -44,9 +44,9 @@ module.exports = class VariableDeclaration {
       code = `var ${varName} = [];\n`;
       code = code + `for( var ${varName}_i = 0; ${varName}_i <= ${range}; ${varName}_i++ )\n`;
       code = code + `  ${varName}[${varName}_i] = new FileHandle();\n`;
-      return code;      
+      return code;
     }
-    
+
     if (theType.name == "twohalves") {
       code = `var ${varName} = new Uint32Array(${range});\n`;
       code = code + `var ${varName}_hh = new Int16Array(${varName}.buffer);`;
@@ -54,25 +54,25 @@ module.exports = class VariableDeclaration {
       return code;
     }
 
-    if (theType.name == "fourquarters") {    
+    if (theType.name == "fourquarters") {
       code = `var ${varName} = new Uint32Array(${range});\n`;
       code = code + `var ${varName}_qqqq = new Uint8Array(${varName}.buffer);`;
       return code;
     }
 
-    if (theType.name == "memoryword") {        
+    if (theType.name == "memoryword") {
       code = `var ${varName} = new Uint32Array(${range});\n`;
-      code = code + `var ${varName}_int = new Int32Array(${varName}.buffer);\n`;      
+      code = code + `var ${varName}_int = new Int32Array(${varName}.buffer);\n`;
       code = code + `var ${varName}_gr = new Float32Array(${varName}.buffer);\n`;
       code = code + `var ${varName}_hh = new Uint16Array(${varName}.buffer);\n`;
       code = code + `var ${varName}_qqqq = new Uint8Array(${varName}.buffer);`;
       return code;
     }
-    
-    
+
+
     if (t.fields) {
       code = "";
-      
+
       for(var i in t.fields) {
         var f = t.fields[i];
         for(var j in t.fields[i].names) {
@@ -85,7 +85,7 @@ module.exports = class VariableDeclaration {
           } else {
             if (f.type.name == "memoryword") {
               code = code + `var ${varName}_${n.generate(block)} = new Uint32Array(${range});\n`;
-              code = code + `var ${varName}_${n.generate(block)}_int = new Int32Array(${varName}_${n.generate(block)}.buffer);\n`;              
+              code = code + `var ${varName}_${n.generate(block)}_int = new Int32Array(${varName}_${n.generate(block)}.buffer);\n`;
               code = code + `var ${varName}_${n.generate(block)}_gr = new Float32Array(${varName}_${n.generate(block)}.buffer);\n`;
               code = code + `var ${varName}_${n.generate(block)}_hh = new Int16Array(${varName}_${n.generate(block)}.buffer);\n`;
               code = code + `var ${varName}_${n.generate(block)}_qqqq = new Int8Array(${varName}_${n.generate(block)}.buffer);`;
@@ -94,9 +94,9 @@ module.exports = class VariableDeclaration {
             }
           }
         }
-      }      
+      }
     }
-    
+
     return code;
   }
 

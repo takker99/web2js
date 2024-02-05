@@ -1,6 +1,6 @@
-'use strict';
 
-module.exports = class VariantDeclaration {
+
+export default class VariantDeclaration {
   constructor(variants) {
     this.variants = variants;
   }
@@ -10,7 +10,7 @@ module.exports = class VariantDeclaration {
       return v.bytes(e);
     }));
   }
-  
+
   generate(e) {
   }
 };

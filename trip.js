@@ -1,18 +1,18 @@
 
-var fs = require('fs');
-var library = require('./library');
+import { readFileSync } from 'fs';
+import library, { setMemory, setTexPool, setInput } from './library';
 
-var binary = fs.readFileSync('trip-async.wasm');
+var binary = readFileSync('trip-async.wasm');
 
 var code = new WebAssembly.Module(binary);
 
 var pages = 2500;
 var memory = new WebAssembly.Memory({initial: pages, maximum: pages});
-library.setMemory(memory.buffer);
-library.setTexPool('trip.pool');
+setMemory(memory.buffer);
+setTexPool('trip.pool');
 
-var stdinBuffer = fs.readFileSync(0).toString(); // STDIN_FILENO = 0
-library.setInput(stdinBuffer,
+var stdinBuffer = readFileSync(0).toString(); // STDIN_FILENO = 0
+setInput(stdinBuffer,
                  function() {
                  });
 

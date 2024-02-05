@@ -30,7 +30,7 @@ tex.wasm: tex.p parser.js
 
 tex-async.wasm: tex.wasm
 	# --mod-asyncify-never-unwind
-	wasm-opt --code-folding --coalesce-locals-learning --precompute-propagate --code-pushing --simplify-locals --flatten --relooper-jump-threading --rereloop --dfo --rereloop --rereloop --ssa-nomerge --local-cse --asyncify --pass-arg=asyncify-ignore-indirect --licm --flatten --rereloop --merge-locals --merge-blocks --remove-unused-brs --remove-unused-names --dae-optimizing --inlining-optimizing --generate-stack-ir --optimize-stack-ir --optimize-instructions --vacuum -O4 -O4 $< -o $@
+	wasm-opt --code-folding --coalesce-locals-learning --precompute-propagate --code-pushing --simplify-locals --flatten --rereloop --dfo --rereloop --rereloop --ssa-nomerge --local-cse --asyncify --pass-arg=asyncify-ignore-indirect --licm --flatten --rereloop --merge-locals --merge-blocks --remove-unused-brs --remove-unused-names --dae-optimizing --inlining-optimizing --generate-stack-ir --optimize-stack-ir --optimize-instructions --vacuum -O4 -O4 $< -o $@
 	echo wasm-opt --asyncify --pass-arg=asyncify-ignore-indirect --mod-asyncify-never-unwind -O3 $< -o $@
 
 core.dump: tex-async.wasm library.js
@@ -58,13 +58,13 @@ trip.tex: triptrap/trip.tex
 	cp $< $@
 
 tripin.log trip.fmt: trip.tfm trip.tex trip.js trip-async.wasm trip.pool
-	echo -ne "\n\\input trip\n" | node trip.js 
+	echo -ne "\n\\input trip\n" | node trip.js
 	mv trip.log tripin.log
 trip.fmt: tripin.log
 
 trip.log trip.dvi tripos.tex 8terminal.tex: trip.tfm trip.tex trip.js trip-async.wasm trip.pool trip.fmt
 	echo 'how many spaces before & ?'
-	echo -ne " &trip  trip " | node trip.js 
+	echo -ne " &trip  trip " | node trip.js
 trip.dvi: trip.log
 tripos.tex: trip.log
 8terminal.tex: trip.log
@@ -84,7 +84,7 @@ etrip.tex: etexdir/etrip/etrip.tex
 
 etripin.log etrip.fmt: etrip.tfm etrip.tex trip.js trip-async.wasm trip.pool
 	echo "Missing initial input?"
-	echo -ne "\n*etrip\n" | node trip.js 
+	echo -ne "\n*etrip\n" | node trip.js
 	mv etrip.log etripin.log
 etrip.fmt: etripin.log
 
@@ -104,7 +104,7 @@ etriptest: tripdiff.js etripin.log etexdir/etrip/etripin.log etrip.log etexdir/e
 	node tripdiff.js etrip.typ etexdir/etrip/etrip.typ
 	node tripdiff.js etrip.fot etexdir/etrip/etrip.fot
 
-test: triptest etriptest 
+test: triptest etriptest
 
 clean:
 	rm -f parser.js

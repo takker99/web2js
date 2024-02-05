@@ -1,31 +1,42 @@
-'use strict';
+
 
 var count = 1;
 
-module.exports = class While {
+/** @typedef{import("../statement.js").Statement} Statement */
+
+/** @implements{Statement} */
+export default class While {
+  /**
+   * @param {any} expression
+   * @param {Statement} statement
+   */
   constructor(expression, statement) {
     this.expression = expression;
     this.statement = statement;
   }
 
+  /** @returns {string[]} */
   gotos() {
     return this.statement.gotos();
   }
 
+  /**
+   * @param {import("../environment.js").default} environment
+   */
   generate(environment) {
     var module = environment.module;
 
     var loopLabel = `while${count}`;
     var blockLabel = `while${count}-done`;
     count = count + 1;
-    
-    var loop = module.block( blockLabel,
-                             [ module.loop( loopLabel,
-                                            module.if( this.expression.generate(environment),
-                                                       module.block( null, [ this.statement.generate(environment),
-                                                                             module.break( loopLabel ) ] ),
-                                                       module.break( blockLabel ) )
-                                          ) ] );
+
+    var loop = module.block(blockLabel,
+      [module.loop(loopLabel,
+        module.if(this.expression.generate(environment),
+          module.block(null, [this.statement.generate(environment),
+          module.break(loopLabel)]),
+          module.break(blockLabel))
+      )]);
 
     return loop;
   }

@@ -1,4 +1,4 @@
-var fs = require('fs');
+import { writeSync, readSync, openSync } from 'fs';
 
 function trace(s) {
   if (s.match(/print/)) return;
@@ -64,7 +64,7 @@ function readln(handle) {
 
 function write(f) {
   var args = Array.prototype.slice.call(arguments);
-  args.shift();  
+  args.shift();
   return f.write.apply(f,args);
 }
 
@@ -98,42 +98,42 @@ class FileHandle {
   }
 
   _break() {
-    if (this.stdout) {    
+    if (this.stdout) {
       //process.stdout.write("\n");
       return;
     }
   }
 
   breakin(toggle) {
-    if (this.stdout) {    
+    if (this.stdout) {
       //process.stdout.write("\n");
       return;
     }
   }
 
-  
+
   write(str) {
     if (str === undefined) {
       console.trace("writing undefined to ", this.filename);
     }
-    
+
     if (this.stdout) {
       if (typeof str == "number") {
 	str = String.fromCharCode(str);
       }
-      
+
       if (str === undefined) {
         return;
       }
-      
+
       process.stdout.write(str);
       return;
     }
 
     if (typeof str == "number")
       str = new Buffer([str]);
-      
-    fs.writeSync( this.descriptor, str );
+
+    writeSync( this.descriptor, str );
   }
 
   eof() {
@@ -141,9 +141,9 @@ class FileHandle {
       return false;
     }
 
-    var b = Buffer.alloc(1);    
-    
-    if (fs.readSync( this.descriptor, b, 0, 1, this.position ) == 0)
+    var b = Buffer.alloc(1);
+
+    if (readSync( this.descriptor, b, 0, 1, this.position ) == 0)
       return true;
     else
       return false;
@@ -153,11 +153,11 @@ class FileHandle {
     var result = this.arrow;
     return (result == 10) || (result == 13) || (result == "\n");
   }
-  
+
   reset(filename,ignore) {
     if (filename == "TTY:") {
       console.log("open TTY reading");
-      this.filename = "stdin";      
+      this.filename = "stdin";
       this.stdin = true;
       this.position = -1;
       return;
@@ -166,14 +166,14 @@ class FileHandle {
 	filename = String.fromCharCode.apply(null, filename);
 
       filename = filename.replace(/ +$/g,'');
-      filename = filename.replace(/^TeXfonts:/,'fonts/');    
+      filename = filename.replace(/^TeXfonts:/,'fonts/');
 
       if (filename == 'TeXformats:TEX.POOL')
 	filename = "tex.pool";
 
       this.filename = filename;
       this.position = -1;
-      this.descriptor = fs.openSync(filename,'r');
+      this.descriptor = openSync(filename,'r');
     }
 
     this.get();
@@ -184,10 +184,10 @@ class FileHandle {
     this.get();
     return b;
   }
-  
+
   get() {
     var b = Buffer.alloc(1);
-    
+
     this.position = this.position + 1;
 
     if (this.stdin) {
@@ -196,16 +196,16 @@ class FileHandle {
       else
 	b[0] = inputBuffer[this.position].charCodeAt(0);
     } else {
-      fs.readSync( this.descriptor, b, 0, 1, this.position );
+      readSync( this.descriptor, b, 0, 1, this.position );
     }
 
     this.arrow = b[0];
   }
-  
+
   readln() {
-    while( ! this.eoln() ) 
+    while( ! this.eoln() )
       this.get();
-    
+
     this.get();
     return;
   }
@@ -214,8 +214,8 @@ class FileHandle {
     if (typeof filename !== "string")
       filename = String.fromCharCode.apply(null, filename);
 
-    filename = filename.replace(/ +$/g,'');    
-    
+    filename = filename.replace(/ +$/g,'');
+
     if (filename == "TTY:") {
       this.filename = "stdout";
       this.stdout = true;
@@ -223,7 +223,7 @@ class FileHandle {
     }
 
     this.filename = filename;
-    this.descriptor = fs.openSync(filename,'w');    
+    this.descriptor = openSync(filename,'w');
   }
 
   close() {

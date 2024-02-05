@@ -1,7 +1,7 @@
-'use strict';
-var Identifier = require('./identifier.js');
 
-module.exports = class SingleCharacter {
+import Identifier from './identifier.js';
+
+export default class SingleCharacter {
   constructor(character) {
     this.character = character;
     this.type = new Identifier('char');

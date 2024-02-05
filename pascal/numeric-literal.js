@@ -1,9 +1,13 @@
-'use strict';
-var Binaryen = require('binaryen');
-var Environment = require('./environment.js');
-var Identifier = require('./identifier.js');
 
-module.exports = class NumericLiteral {
+import Binaryen from 'binaryen';
+import Environment from './environment.js';
+import Identifier from './identifier.js';
+
+export default class NumericLiteral {
+  /**
+   * @param {number} n
+   * @param {Identifier} [type]
+   */
   constructor(n, type) {
     this.number = n;
 
@@ -13,6 +17,10 @@ module.exports = class NumericLiteral {
       this.type = new Identifier("integer");
   }
 
+  /**
+   * @param {Environment} environment
+   * @returns {Binaryen.ExpressionId}
+   */
   generate(environment) {
     environment = new Environment(environment);
     var m = environment.module;

@@ -1,6 +1,8 @@
-'use strict';
-
-module.exports = class ConstantDeclaration {
+export default class ConstantDeclaration {
+  /**
+   * @param {{ name: string; }} identifier
+   * @param {number} expression
+   */
   constructor(identifier,expression) {
     this.name = identifier.name;
     this.expression = expression;
