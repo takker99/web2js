@@ -5,11 +5,18 @@ import Identifier from './identifier.js';
 import PointerType from './pointer-type.js';
 
 export default class FunctionEvaluation {
+  /**
+   * @param {import("./identifier.js").default} f
+   * @param {import("./types.js").ActualParam[]} xs
+   */
   constructor(f,xs) {
     this.f = f;
     this.xs = xs;
   }
 
+  /**
+   * @param {import("./environment.js").default} environment
+   */
   generate(environment) {
     var module = environment.module;
 

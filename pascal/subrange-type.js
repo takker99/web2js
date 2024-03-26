@@ -3,8 +3,8 @@ const { i32, } = Binaryen;
 
 export default class SubrangeType {
   /**
-   * @param {any} lower
-   * @param {any} upper
+   * @param {import("./types.js").SubrangeConstant|import("./identifier.js").default} lower
+   * @param {import("./types.js").SubrangeConstant|import("./identifier.js").default} upper
    */
   constructor(lower, upper) {
     this.lower = lower;
@@ -110,7 +110,7 @@ export default class SubrangeType {
   }
 
   /**
-   * @param {any} e
+   * @param {import("./environment.js").default} e
    */
   generate(e) {
     return `range ${this.lower.generate(e)}..${this.upper.generate(e)}`;

@@ -2,7 +2,7 @@
 
 export default class RecordType {
   /**
-   * @param {any} fields
+   * @param {import("./RecordSection.js").RecordSection[]} fields
    * @param {boolean} [packed]
    */
   constructor(fields, packed) {
@@ -15,7 +15,7 @@ export default class RecordType {
    */
   bytes(e) {
     return this.fields
-      .map( function(/** @type {{ bytes: (arg0: any) => any; }} */ f) { return f.bytes(e); } )
+      .map( function( f) { return f.bytes(e); } )
       .reduce(function(/** @type {any} */ a, /** @type {any} */ b) { return a + b; }, 0);
   }
 

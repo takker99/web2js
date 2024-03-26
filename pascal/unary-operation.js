@@ -2,6 +2,10 @@
 import Binaryen from 'binaryen';
 
 export default class UnaryOperation {
+  /**
+   * @param {"+"|"-"|"!"} operator
+   * @param {any} operand
+   */
   constructor(operator, operand) {
     this.operator = operator;
     this.operand = operand;
