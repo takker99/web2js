@@ -27,3 +27,4 @@ spec/*.o
 auto-save-list
 tramp
 .\#*
+binaryen/

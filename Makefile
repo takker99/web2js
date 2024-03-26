@@ -28,9 +28,9 @@ tex.pool: tex.p
 tex.wasm: tex.p parser.js
 	node compile.js $< $@
 
-tex-async.wasm: tex.wasm
+tex-async.wasm: tex.wasm wasm-opt
 	# --mod-asyncify-never-unwind
-	wasm-opt --code-folding --coalesce-locals-learning --precompute-propagate --code-pushing --simplify-locals --flatten --rereloop --dfo --rereloop --rereloop --ssa-nomerge --local-cse --asyncify --pass-arg=asyncify-ignore-indirect --licm --flatten --rereloop --merge-locals --merge-blocks --remove-unused-brs --remove-unused-names --dae-optimizing --inlining-optimizing --generate-stack-ir --optimize-stack-ir --optimize-instructions --vacuum -O4 -O4 $< -o $@
+	./bynaryen/bin/wasm-opt --code-folding --coalesce-locals-learning --precompute-propagate --code-pushing --simplify-locals --flatten --rereloop --dfo --rereloop --rereloop --ssa-nomerge --local-cse --asyncify --pass-arg=asyncify-ignore-indirect --licm --flatten --rereloop --merge-locals --merge-blocks --remove-unused-brs --remove-unused-names --dae-optimizing --inlining-optimizing --generate-stack-ir --optimize-stack-ir --optimize-instructions --vacuum -O4 -O4 $< -o $@
 	echo wasm-opt --asyncify --pass-arg=asyncify-ignore-indirect --mod-asyncify-never-unwind -O3 $< -o $@
 
 core.dump: tex-async.wasm library.js
@@ -48,8 +48,8 @@ trip.pool: trip.p
 trip.wasm: trip.p parser.js
 	node compile.js $< $@
 
-trip-async.wasm: trip.wasm
-	wasm-opt --asyncify --pass-arg=asyncify-ignore-indirect -O4 $< -o $@
+trip-async.wasm: trip.wasm wasm-opt
+	./bynaryen/bin/wasm-opt --asyncify --pass-arg=asyncify-ignore-indirect -O4 $< -o $@
 
 trip.tfm: triptrap/trip.pl
 	pltotf $< $@
@@ -125,3 +125,12 @@ clean:
 	rm -f etrip.tfm etrip.tex
 	rm -f etrip.log etrip.dvi etrip.out etripin.log etrip.fmt
 	rm -f etrip.typ
+
+wasm-opt: ./bynaryen/bin/wasm-opt
+
+./bynaryen/bin/wasm-opt:
+	git clone https://github.com/WebAssembly/binaryen.git
+	cd binaryen
+	git submodule init
+	git submodule update
+	cmake ./binaryen && make
