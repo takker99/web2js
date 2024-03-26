@@ -1,5 +1,6 @@
 import { readFileSync, openSync, readSync, readFile } from 'fs';
-import library, { setMemory, setInput } from './library';
+import * as library from './library.js';
+const { setInput, setMemory } = library
 
 var binary = readFileSync('tex-async.wasm');
 

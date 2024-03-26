@@ -32,7 +32,7 @@ export default class Case {
     if (isDefault) {
       condition = m.i32.const(1);
     } else {
-      var conditions = this.label.map( function () {
+      var conditions = this.label.map( function (l) {
         return m.i32.eq( selector, m.i32.const(l) );
       });
 

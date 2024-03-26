@@ -1,6 +1,7 @@
 
 import { readFileSync } from 'fs';
-import library, { setMemory, setTexPool, setInput } from './library';
+import * as library from './library.js';
+const { setInput, setMemory, setTexPool } = library
 
 var binary = readFileSync('trip-async.wasm');
 

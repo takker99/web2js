@@ -13,46 +13,46 @@
 
 %{
 
-var Program = require('./pascal/program.js');
-var Block = require('./pascal/block.js');
-var ConstantDeclaration = require('./pascal/constant-declaration.js');
-var TypeDeclaration = require('./pascal/type-declaration.js');
-var VariableDeclaration = require('./pascal/variable-declaration.js');
-var RecordDeclaration = require('./pascal/record-declaration.js');
-var VariantDeclaration = require('./pascal/variant-declaration.js');  
+import Program from './pascal/program.js';
+import Block from './pascal/block.js';
+import ConstantDeclaration from './pascal/constant-declaration.js';
+import TypeDeclaration from './pascal/type-declaration.js';
+import VariableDeclaration from './pascal/variable-declaration.js';
+import RecordDeclaration from './pascal/record-declaration.js';
+import VariantDeclaration from './pascal/variant-declaration.js';
 
-var Pointer = require('./pascal/pointer.js');
-var Desig = require('./pascal/desig.js');
-var SubrangeType = require('./pascal/subrange-type.js');
-var PointerType = require('./pascal/pointer-type.js');
-var ArrayType = require('./pascal/array-type.js');
-var RecordType = require('./pascal/record-type.js');
-var FileType = require('./pascal/file-type.js');
-var ArrayIndex = require('./pascal/array-index.js');
-var FunctionDeclaration = require('./pascal/function-declaration.js');
-var Operation = require('./pascal/operation.js');
-var UnaryOperation = require('./pascal/unary-operation.js');
-var StringLiteral = require('./pascal/string-literal.js');
-var NumericLiteral = require('./pascal/numeric-literal.js');
-var SingleCharacter = require('./pascal/single-character.js');
-var FunctionEvaluation = require('./pascal/function-evaluation.js');
-var ExpressionWithWidth = require('./pascal/expression-with-width.js');
+import Pointer from './pascal/pointer.js';
+import Desig from './pascal/desig.js';
+import SubrangeType from './pascal/subrange-type.js';
+import PointerType from './pascal/pointer-type.js';
+import ArrayType from './pascal/array-type.js';
+import RecordType from './pascal/record-type.js';
+import FileType from './pascal/file-type.js';
+import ArrayIndex from './pascal/array-index.js';
+import FunctionDeclaration from './pascal/function-declaration.js';
+import Operation from './pascal/operation.js';
+import UnaryOperation from './pascal/unary-operation.js';
+import StringLiteral from './pascal/string-literal.js';
+import NumericLiteral from './pascal/numeric-literal.js';
+import SingleCharacter from './pascal/single-character.js';
+import FunctionEvaluation from './pascal/function-evaluation.js';
+import ExpressionWithWidth from './pascal/expression-with-width.js';
 
-var LabeledStatement = require('./pascal/statements/labeled-statement.js');
-var Nop = require('./pascal/statements/nop.js');
-var Assignment = require('./pascal/statements/assignment.js');
-var Goto = require('./pascal/statements/goto.js');
-var Conditional = require('./pascal/statements/conditional.js');
-var Switch = require('./pascal/statements/switch.js');
-var Case = require('./pascal/statements/case.js');
-var While = require('./pascal/statements/while.js');
-var Repeat = require('./pascal/statements/repeat.js');
-var For = require('./pascal/statements/for.js');
-var CallProcedure = require('./pascal/statements/call-procedure.js');
-var Compound = require('./pascal/statements/compound.js');
+import LabeledStatement from './pascal/statements/labeled-statement.js';
+import Nop from './pascal/statements/nop.js';
+import Assignment from './pascal/statements/assignment.js';
+import Goto from './pascal/statements/goto.js';
+import Conditional from './pascal/statements/conditional.js';
+import Switch from './pascal/statements/switch.js';
+import Case from './pascal/statements/case.js';
+import While from './pascal/statements/while.js';
+import Repeat from './pascal/statements/repeat.js';
+import For from './pascal/statements/for.js';
+import CallProcedure from './pascal/statements/call-procedure.js';
+import Compound from './pascal/statements/compound.js';
 
-var Identifier = require('./pascal/identifier.js');
-  
+import Identifier from './pascal/identifier.js';
+
 %}
 
 %%
@@ -138,33 +138,33 @@ CONSTANT:
  CONSTANT_EXPRESS:
  	  UNARY_OP CONSTANT_EXPRESS %prec '*'
              { $$ = new UnaryOperation($1, $2);}
-         | CONSTANT_EXPRESS '+'          
+         | CONSTANT_EXPRESS '+'
            CONSTANT_EXPRESS              { $$ = new Operation('+', $1, $3);}
-         | CONSTANT_EXPRESS '-'          
+         | CONSTANT_EXPRESS '-'
            CONSTANT_EXPRESS              { $$ = new Operation('-', $1, $3);}
-         | CONSTANT_EXPRESS '*'          
+         | CONSTANT_EXPRESS '*'
            CONSTANT_EXPRESS              {$$ = new Operation('*', $1, $3); }
-         | CONSTANT_EXPRESS div      
+         | CONSTANT_EXPRESS div
            CONSTANT_EXPRESS              { $$ = new Operation('div', $1, $3);}
-         | CONSTANT_EXPRESS '='          
+         | CONSTANT_EXPRESS '='
            CONSTANT_EXPRESS              { $$ = new Operation('==', $1, $3);}
-         | CONSTANT_EXPRESS '<>'   
+         | CONSTANT_EXPRESS '<>'
            CONSTANT_EXPRESS              {$$ = new Operation('!=', $1, $3); }
-         | CONSTANT_EXPRESS mod      
+         | CONSTANT_EXPRESS mod
            CONSTANT_EXPRESS              { $$ = new Operation('%', $1, $3);}
-         | CONSTANT_EXPRESS '<'          
+         | CONSTANT_EXPRESS '<'
            CONSTANT_EXPRESS              { $$ = new Operation('<', $1, $3);}
-         | CONSTANT_EXPRESS '>'          
+         | CONSTANT_EXPRESS '>'
            CONSTANT_EXPRESS              { $$ = new Operation('>', $1, $3);}
-         | CONSTANT_EXPRESS '<='  
+         | CONSTANT_EXPRESS '<='
            CONSTANT_EXPRESS              {$$ = new Operation('<=', $1, $3); }
-         | CONSTANT_EXPRESS '>=' 
+         | CONSTANT_EXPRESS '>='
            CONSTANT_EXPRESS              {$$ = new Operation('>=', $1, $3); }
-         | CONSTANT_EXPRESS and      
+         | CONSTANT_EXPRESS and
            CONSTANT_EXPRESS              {$$ = new Operation('&&', $1, $3); }
-         | CONSTANT_EXPRESS or       
+         | CONSTANT_EXPRESS or
 CONSTANT_EXPRESS              { $$ = new Operation('||', $1, $3);}
-         | CONSTANT_EXPRESS '/'          
+         | CONSTANT_EXPRESS '/'
 CONSTANT_EXPRESS              {$$ = new Operation('/', $1, $3);}
          | CONST_FACTOR { $$ = $1; }
          ;
@@ -350,12 +350,12 @@ EXPRESS:
   | EXPRESS '<>' EXPRESS { $$ = new Operation( '!=', $1, $3 ); }
   | EXPRESS mod  EXPRESS { $$ = new Operation( '%', $1, $3 ); }
   | EXPRESS '<'  EXPRESS { $$ = new Operation( '<', $1, $3 ); }
-  | EXPRESS '>'  EXPRESS { $$ = new Operation( '>', $1, $3 ); }		
-  | EXPRESS '<=' EXPRESS { $$ = new Operation( '<=', $1, $3 ); }		
+  | EXPRESS '>'  EXPRESS { $$ = new Operation( '>', $1, $3 ); }
+  | EXPRESS '<=' EXPRESS { $$ = new Operation( '<=', $1, $3 ); }
   | EXPRESS '>='  EXPRESS { $$ = new Operation( '>=', $1, $3 ); }
   | EXPRESS and  EXPRESS { $$ = new Operation( '&&', $1, $3 ); }
   | EXPRESS or  EXPRESS { $$ = new Operation( '||', $1, $3 ); }
-  | EXPRESS '/' EXPRESS { $$ = new Operation( '/', $1, $3 ); }						
+  | EXPRESS '/' EXPRESS { $$ = new Operation( '/', $1, $3 ); }
   | FACTOR { $$ = $1; }
 ;
 
@@ -450,4 +450,3 @@ FOR_LIST:
     EXPRESS to EXPRESS  { $$ = [$1,$3,1]; }
   | EXPRESS downto EXPRESS   { $$ = [$1,$3,-1]; }
 ;
-

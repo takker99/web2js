@@ -5,7 +5,7 @@ CHANGE_FILES=$(ETEXCH) $(addprefix jstex/,date.ch ord-chr.ch logopenout.ch licen
 all:
 
 parser.js: parser.jison
-	./node_modules/.bin/jison parser.jison
+	npx jison -o parser.js -m js parser.jison
 
 changes.ch: $(TEXWEB) $(CHANGE_FILES)
 	tie -c $@ $(TEXWEB) $(CHANGE_FILES)
@@ -107,7 +107,6 @@ etriptest: tripdiff.js etripin.log etexdir/etrip/etripin.log etrip.log etexdir/e
 test: triptest etriptest
 
 clean:
-	rm -f parser.js
 	rm -f changes.ch
 	rm -f trip.tfm trip.tex
 	rm -f trip.wasm

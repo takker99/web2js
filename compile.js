@@ -3,6 +3,7 @@ import Binaryen from 'binaryen';
 
 var lexer = new Lexer();
 
+/** @type{string} */
 var last_token;
 
 // definitions
@@ -148,6 +149,7 @@ lexer.setSource(code);
 
 import { parser } from './parser.js';
 
+// @ts-ignore
 parser.lexer = {
   lex: function () {
     var token = lexer.lex();
@@ -156,7 +158,7 @@ parser.lexer = {
     //console.log(lexer.text);
     return token;
     },
-  setInput: function (str) {
+  setInput: function (/** @type {any} */ _str) {
   }
 };
 
