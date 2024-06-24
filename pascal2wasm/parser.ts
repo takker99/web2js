@@ -10,6 +10,8 @@ import { token, identifier, eos, comma, lParen, rParen, nothing, colon, semicolo
 import { programHeading } from "./programHeading.ts";
 import { label, labelDeclarationPart } from "./labelDeclarationPart.ts";
 import { constDeclarationPart } from "./constDeclarationPart.ts";
+import { subrangeType } from "./subrangeType.ts";
+import { enumeratedType } from "./enumeratedType.ts";
 
 const pascalTrue = token("true").map(() => true);
 const pascalFalse = token("false").map(() => false);
@@ -67,36 +69,22 @@ const constantExpression: Parser<string | number | boolean> = lazy(() =>
 );
 
 
-//https://qiita.com/ht_deko/items/5c04bb2b42947e29d94b#25-real-%E5%9E%8B-real-types
-const realType = real;
-
-const enumeratedType = identifier.sepBy(comma, 1).wrap(lParen, rParen);
 
 const ordinalType = choice(
-  booleanType,
-  integerType,
-  charType,
+  token("Boolean"),
+  token("Integer"),
+  token("Char"),
   enumeratedType,
   subrangeType,
 );
 
 const SimpleType = choice(
   ordinalType,
-  realType,
+  token("Real"),
 )
 
 // identifierは型名
 const pointerType = token("^").next(identifier).desc(["pointerType"]);
-
-const subrangeConstant = choice(
-  integer,
-  plus.next(integer.or(identifier)),
-  minus.next(integer.or(identifier)).map((n) => -n),
-);
-
-const subrangeType = choice(subrangeConstant, identifier).skip(token("..")).and(
-  choice(subrangeConstant, identifier),
-);
 
 const indexType = subrangeType.or(identifier);
 const arrayType = token("array").next(
