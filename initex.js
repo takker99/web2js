@@ -1,32 +1,35 @@
-import { readFileSync, writeFileSync } from 'fs';
-import * as library from './library.js';
-const { setInput, setMemory, setWasmExports } = library
+import { writeFileSync } from "node:fs";
+import * as library from "./library.js";
+const { setInput, setMemory, setWasmExports } = library;
 
-var binary = readFileSync('tex-async.wasm');
+const binary = await Deno.readFile("tex-async.wasm");
 
-var code = new WebAssembly.Module(binary);
+const code = new WebAssembly.Module(binary);
 
-var pages = 2500;
-var memory = new WebAssembly.Memory({ initial: pages, maximum: pages });
+const pages = 2500;
+const memory = new WebAssembly.Memory({ initial: pages, maximum: pages });
 
-setInput("*latex.ltx\n\\dump\n\n",
-  function () {
-  });
+setInput("*latex.ltx\n\\dump\n\n", function () {
+});
 setMemory(memory.buffer);
 
-var wasm = new WebAssembly.Instance(code, {
-  library: library,
-  env: { memory: memory }
-});
+{
+  const wasm = new WebAssembly.Instance(code, {
+    library: library,
+    env: { memory: memory },
+  });
 
-const wasmExports = wasm.exports;
-setWasmExports(wasmExports);
+  const wasmExports = wasm.exports;
+  setWasmExports(wasmExports);
 
-wasm.exports.main();
+  wasm.exports.main();
+}
 
-let preamble = "\\documentclass{article}\n\\usepackage{nopageno}\n\\def\\pgfsysdriver{pgfsys-ximera.def}\\usepackage{tikz}\n\\usepackage[paperheight=100in,paperwidth=8.5in]{geometry}\n";
+let preamble =
+  "\\documentclass{article}\n\\usepackage{nopageno}\n\\def\\pgfsysdriver{pgfsys-ximera.def}\\usepackage{tikz}\n\\usepackage[paperheight=100in,paperwidth=8.5in]{geometry}\n";
 
-preamble = "\\documentclass{article}\n\\usepackage{nopageno}\n\\def\\pgfsysdriver{pgfsys-ximera.def}\\usepackage{tikz}\n";
+preamble =
+  "\\documentclass{article}\n\\usepackage{nopageno}\n\\def\\pgfsysdriver{pgfsys-ximera.def}\\usepackage{tikz}\n";
 //preamble = "";
 
 //preamble = "\\documentclass[margin=0pt]{standalone}\n\\def\\pgfsysdriver{pgfsys-ximera.def}\\usepackage{tikz}\n";
@@ -63,10 +66,11 @@ const libraries = [
   "shadows",
   "fadings",
   "through",
-  "pgfplots.groupplots"
-]
+  "pgfplots.groupplots",
+];
 
-let tikzlibraries = libraries.map((library) => `\\usetikzlibrary{${library}}`).join('')
+const tikzlibraries = libraries.map((library) => `\\usetikzlibrary{${library}}`)
+  .join("");
 
 const packages = [
   "listings",
@@ -125,24 +129,28 @@ const packages = [
   "bigintcalc",
   "atbegshi-ltx",
   "rerunfilecheck",
-  "ifvtex"
-]
+  "ifvtex",
+];
 
-preamble = "\\def\\pgfsysdriver{pgfsys-ximera.def}\\PassOptionsToPackage{dvisvgm}{graphicx}\\PassOptionsToPackage{hypertex}{hyperref}\\RequirePackage{expl3}\\RequirePackage[makeroom]{cancel}" + packages.map((package_) => `\\RequirePackage{${package_}}`).join('') + tikzlibraries + "\\PassOptionsToClass{web}{ximera}\\let\\abovecaptionskip=\\relax\\let\\belowcaptionskip=\\relax\\let\\maketitle=\\relax\n";
+preamble =
+  "\\def\\pgfsysdriver{pgfsys-ximera.def}\\PassOptionsToPackage{dvisvgm}{graphicx}\\PassOptionsToPackage{hypertex}{hyperref}\\RequirePackage{expl3}\\RequirePackage[makeroom]{cancel}" +
+  packages.map((package_) => `\\RequirePackage{${package_}}`).join("") +
+  tikzlibraries +
+  "\\PassOptionsToClass{web}{ximera}\\let\\abovecaptionskip=\\relax\\let\\belowcaptionskip=\\relax\\let\\maketitle=\\relax\n";
 
-preamble = preamble + "\\documentclass{ximera}\\renewcommand{\\documentclass}[2][]{}\\snapshot\n";
+preamble = preamble +
+  "\\documentclass{ximera}\\renewcommand{\\documentclass}[2][]{}\\snapshot\n";
 
 setMemory(memory.buffer);
-setInput("\n&latex\n" + preamble + "\n\n\n",
-  function () {
-    var buffer = new Uint8Array(memory.buffer);
-    writeFileSync('core.dump', buffer);
-    process.exit();
-  });
+setInput("\n&latex\n" + preamble + "\n\n\n", () => {
+  const buffer = new Uint8Array(memory.buffer);
+  writeFileSync("core.dump", buffer);
+  process.exit();
+});
 
-var wasm = new WebAssembly.Instance(code, {
+const wasm = new WebAssembly.Instance(code, {
   library: library,
-  env: { memory: memory }
+  env: { memory: memory },
 });
 
 console.log(wasm.exports);

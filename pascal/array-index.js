@@ -1,8 +1,6 @@
-import Environment from './environment.js';
-
 export default class ArrayIndex {
   /**
-   * @param {import('./expression.js').Expression} index
+   * @param {import('./expression.ts').Expression} index
    */
   constructor(index) {
     this.index = index;
@@ -14,4 +12,4 @@ export default class ArrayIndex {
   generate(block) {
     return this.index.generate(block);
   }
-};
+}

@@ -1,7 +1,6 @@
-
-import ConstantDeclaration from './constant-declaration.js';
-import Environment from './environment.js';
-import TypeDeclaration from './type-declaration.js';
+import ConstantDeclaration from "./constant-declaration.js";
+import Environment from "./environment.js";
+import TypeDeclaration from "./type-declaration.js";
 
 export default class Block {
   /**
@@ -11,7 +10,7 @@ export default class Block {
    * @param {any} vars
    * @param {import("./statements/compound.js").default} compound
    */
-  constructor(labels,consts,types,vars,compound) {
+  constructor(labels, consts, types, vars, compound) {
     this.labels = labels;
     this.consts = consts;
     this.types = types;
@@ -29,10 +28,10 @@ export default class Block {
       environment.constants[v.name] = v.expression;
     });
 
-    this.types.forEach( function(t) {
+    this.types.forEach(function (t) {
       environment.types[t.name] = t.expression;
     });
 
     return this.compound.generate(environment);
-   }
+  }
 }

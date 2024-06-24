@@ -1,4 +1,3 @@
-
 export default class Constant {
   /**
    * @param {string|number} name
@@ -6,7 +5,6 @@ export default class Constant {
   constructor(name) {
     this.name = name;
   }
-
 
   /**
    * @param {import("./environment.js").default} environment
@@ -22,4 +20,4 @@ export default class Constant {
       throw `Could not resolve the constant ${this.name}`;
     }
   }
-};
+}

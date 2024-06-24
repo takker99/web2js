@@ -1,4 +1,4 @@
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class Conditional {
@@ -18,12 +18,11 @@ export default class Conditional {
     var g = this.result.gotos();
 
     if (this.otherwise) {
-      g = g.concat( this.otherwise.gotos() );
+      g = g.concat(this.otherwise.gotos());
     }
 
     return g;
   }
-
 
   toString() {
     this.generate(undefined);
@@ -39,11 +38,12 @@ export default class Conditional {
       var theThen = this.result.generate(environment);
       var theElse = this.otherwise.generate(environment);
 
-      return module.if( this.expression.generate(environment),
-                        theThen, theElse );
+      return module.if(this.expression.generate(environment), theThen, theElse);
     } else {
-      return module.if( this.expression.generate(environment),
-                        this.result.generate(environment) );
+      return module.if(
+        this.expression.generate(environment),
+        this.result.generate(environment),
+      );
     }
   }
-};
+}

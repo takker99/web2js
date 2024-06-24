@@ -1,4 +1,4 @@
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class Goto {
@@ -17,13 +17,13 @@ export default class Goto {
   /**
    * @param {import("../environment.js").default} environment
    */
-  generate(environment){
+  generate(environment) {
     var module = environment.module;
 
-    var label = environment.resolveLabel( this.label );
+    var label = environment.resolveLabel(this.label);
 
     if (label) {
-      return label.generate( environment );
+      return label.generate(environment);
     }
 
     var e = environment;
@@ -31,11 +31,12 @@ export default class Goto {
       e = e.parent;
     }
 
-    if (e)
+    if (e) {
       throw `Could not find label ${this.label} in ${e.name}`;
-    else
+    } else {
       throw `Could not find label ${this.label} in main`;
+    }
 
     return module.return();
   }
-};
+}

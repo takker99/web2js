@@ -1,6 +1,5 @@
-
-import Environment from './environment.js';
-import Identifier from './identifier.js';
+import Environment from "./environment.js";
+import Identifier from "./identifier.js";
 
 export default class Operation {
   /**
@@ -39,17 +38,19 @@ export default class Operation {
     }
 
     if (this.operator === "&&") {
-      if ((typeA.name == "boolean" && typeB.name == "boolean"))
+      if ((typeA.name == "boolean" && typeB.name == "boolean")) {
         return family.and(a, b);
-      else
-        throw "Can only 'and' on boolean types."
+      } else {
+        throw "Can only 'and' on boolean types.";
+      }
     }
 
     if (this.operator === "||") {
-      if ((typeA.name == "boolean" && typeB.name == "boolean"))
+      if ((typeA.name == "boolean" && typeB.name == "boolean")) {
         return family.or(a, b);
-      else
-        throw "Can only 'or' on boolean types."
+      } else {
+        throw "Can only 'or' on boolean types.";
+      }
     }
 
     if ((typeA.isInteger()) && (typeB.isInteger())) {
@@ -82,7 +83,7 @@ export default class Operation {
     }
 
     if (family === undefined) {
-      throw `Could not determine types for operator ${this.operator}.`
+      throw `Could not determine types for operator ${this.operator}.`;
     }
 
     if (this.operator === "+") {
@@ -94,7 +95,6 @@ export default class Operation {
     }
 
     if (this.operator === "*") {
-
       return family.mul(a, b);
     }
 
@@ -103,11 +103,13 @@ export default class Operation {
     }
 
     if (this.operator === "/") {
-      if (typeB.name != "real")
+      if (typeB.name != "real") {
         b = m.f32.convert_s.i32(b);
+      }
 
-      if (typeA.name != "real")
+      if (typeA.name != "real") {
         a = m.f32.convert_s.i32(a);
+      }
 
       this.type = new Identifier("real");
       return m.f32.div(a, b);
@@ -124,26 +126,48 @@ export default class Operation {
     }
 
     if (family === m.i32) {
-      if (this.operator === "<") { this.type = new Identifier("boolean"); return family.lt_s(a, b); }
-      if (this.operator === ">") { this.type = new Identifier("boolean"); return family.gt_s(a, b); }
-      if (this.operator === ">=") { this.type = new Identifier("boolean"); return family.ge_s(a, b); }
-      if (this.operator === "<=") { this.type = new Identifier("boolean"); return family.le_s(a, b); }
+      if (this.operator === "<") {
+        this.type = new Identifier("boolean");
+        return family.lt_s(a, b);
+      }
+      if (this.operator === ">") {
+        this.type = new Identifier("boolean");
+        return family.gt_s(a, b);
+      }
+      if (this.operator === ">=") {
+        this.type = new Identifier("boolean");
+        return family.ge_s(a, b);
+      }
+      if (this.operator === "<=") {
+        this.type = new Identifier("boolean");
+        return family.le_s(a, b);
+      }
     }
 
     if (family === m.f32) {
-      if (this.operator === "<") { this.type = new Identifier("boolean"); return family.lt(a, b); }
-      if (this.operator === ">") { this.type = new Identifier("boolean"); return family.gt(a, b); }
-      if (this.operator === ">=") { this.type = new Identifier("boolean"); return family.ge(a, b); }
-      if (this.operator === "<=") { this.type = new Identifier("boolean"); return family.le(a, b); }
+      if (this.operator === "<") {
+        this.type = new Identifier("boolean");
+        return family.lt(a, b);
+      }
+      if (this.operator === ">") {
+        this.type = new Identifier("boolean");
+        return family.gt(a, b);
+      }
+      if (this.operator === ">=") {
+        this.type = new Identifier("boolean");
+        return family.ge(a, b);
+      }
+      if (this.operator === "<=") {
+        this.type = new Identifier("boolean");
+        return family.le(a, b);
+      }
     }
-
 
     if (this.operator === "%") {
       return family.rem_s(a, b);
     }
 
     throw `Could not parse operator ${this.operator}`;
-    return m.nop();;
+    return m.nop();
   }
-
-};
+}

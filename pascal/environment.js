@@ -1,15 +1,13 @@
-
-
-import ArrayType from './array-type.js';
-import RecordDeclaration from './record-declaration.js';
-import VariantDeclaration from './variant-declaration.js';
-import RecordType from './record-type.js';
-import FileType from './file-type.js';
-import Binaryen from 'binaryen';
-import UnaryOperation from './unary-operation.js';
-import Constant from './constant.js';
-import Identifier from './identifier.js';
-import Program from './program.js';
+import ArrayType from "./array-type.js";
+import RecordDeclaration from "./record-declaration.js";
+import VariantDeclaration from "./variant-declaration.js";
+import RecordType from "./record-type.js";
+import FileType from "./file-type.js";
+import Binaryen from "../deps/binaryen.ts";
+import UnaryOperation from "./unary-operation.js";
+import Constant from "./constant.js";
+import Identifier from "./identifier.js";
+import Program from "./program.js";
 const { Module } = Binaryen;
 
 export default class Environment {
@@ -36,11 +34,12 @@ export default class Environment {
     this.setVariable = {};
     this.getVariable = {};
 
-    if (parent)
+    if (parent) {
       /** @type{Binaryen.Module} */
       this.module = parent.module;
-    else
+    } else {
       this.module = new Module();
+    }
   }
 
   /**
@@ -50,8 +49,9 @@ export default class Environment {
     var e = this;
 
     while (e) {
-      if (e.labels[label])
+      if (e.labels[label]) {
         return e.labels[label];
+      }
 
       e = e.parent;
     }
@@ -66,8 +66,9 @@ export default class Environment {
     var e = this;
 
     while (e) {
-      if (e.types[typeIdentifier.name])
+      if (e.types[typeIdentifier.name]) {
         return e.types[typeIdentifier.name];
+      }
 
       e = e.parent;
     }
@@ -86,9 +87,11 @@ export default class Environment {
     }
 
     if (f.variants) {
-      return new VariantDeclaration(f.variants.map(function (/** @type {any} */ v) {
-        return self.resolveType(v);
-      }));
+      return new VariantDeclaration(
+        f.variants.map(function (/** @type {any} */ v) {
+          return self.resolveType(v);
+        }),
+      );
     }
 
     throw `Could not resolve record declaration ${f}`;
@@ -134,7 +137,8 @@ export default class Environment {
         resolved.fields.map(function (/** @type {any} */ f) {
           return self.resolveRecordDeclaration(f);
         }),
-        resolved.packed);
+        resolved.packed,
+      );
     }
 
     return resolved;
@@ -147,16 +151,17 @@ export default class Environment {
   resolveConstant(c) {
     var e = this;
 
-    if (c.operator == '-') {
+    if (c.operator == "-") {
       c = this.resolveConstant(c.operand);
-      c = Object.assign({}, c)
+      c = Object.assign({}, c);
       c.number = c.number * -1;
       return c;
     }
 
     while (e) {
-      if (e.constants[c.name])
+      if (e.constants[c.name]) {
         return e.constants[c.name];
+      }
 
       e = e.parent;
     }
@@ -171,8 +176,9 @@ export default class Environment {
     var e = this;
 
     while (e) {
-      if (e.functions[c.name])
+      if (e.functions[c.name]) {
         return e.functions[c.name];
+      }
 
       e = e.parent;
     }
@@ -187,13 +193,13 @@ export default class Environment {
     var e = this;
 
     while (e) {
-      if (e.variables[variableIdentifier.name])
+      if (e.variables[variableIdentifier.name]) {
         return e.variables[variableIdentifier.name];
+      }
 
       e = e.parent;
     }
 
     return undefined;
   }
-
-};
+}

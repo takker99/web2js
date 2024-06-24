@@ -1,8 +1,8 @@
-import Desig from '../desig.js';
-import NumericLiteral from '../numeric-literal.js';
-import SingleCharacter from '../single-character.js';
+import Desig from "../desig.js";
+import NumericLiteral from "../numeric-literal.js";
+import SingleCharacter from "../single-character.js";
 
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class Assignment {
@@ -10,7 +10,7 @@ export default class Assignment {
    * @param {Desig} lhs
    * @param {Desig | import("../operation.js").default | import("../pointer.js").default} rhs
    */
-  constructor(lhs,rhs) {
+  constructor(lhs, rhs) {
     this.lhs = lhs;
     this.rhs = rhs;
   }
@@ -27,37 +27,52 @@ export default class Assignment {
     var module = environment.module;
 
     var rhs = this.rhs.generate(environment);
-    var rhsType = environment.resolveType( this.rhs.type );
+    var rhsType = environment.resolveType(this.rhs.type);
     var lhs = this.lhs.generate(environment);
-    var lhsType = environment.resolveType( this.lhs.type );
+    var lhsType = environment.resolveType(this.lhs.type);
 
     if ((this.rhs.type.name == "string") && (this.lhs.type.componentType)) {
       if (this.rhs.text) {
         var commands = [];
 
-        for( var i = 0; i < Math.min( this.rhs.text.length, this.lhs.type.index.range() ); i++ ) {
-          var d = new Desig( this.lhs, new NumericLiteral(i + this.lhs.type.index.minimum()) );
+        for (
+          var i = 0;
+          i < Math.min(this.rhs.text.length, this.lhs.type.index.range());
+          i++
+        ) {
+          var d = new Desig(
+            this.lhs,
+            new NumericLiteral(i + this.lhs.type.index.minimum()),
+          );
           d.generate(environment);
-          var c =  new SingleCharacter(this.rhs.text[i]);
-          commands.push( d.variable.set( c.generate(environment) ) );
+          var c = new SingleCharacter(this.rhs.text[i]);
+          commands.push(d.variable.set(c.generate(environment)));
         }
 
-        for( i = Math.min( this.rhs.text.length, this.lhs.type.index.range() ); i < this.lhs.type.index.range(); i++ ) {
-          var d = new Desig( this.lhs, new NumericLiteral(i + this.lhs.type.index.minimum()) );
+        for (
+          i = Math.min(this.rhs.text.length, this.lhs.type.index.range());
+          i < this.lhs.type.index.range();
+          i++
+        ) {
+          var d = new Desig(
+            this.lhs,
+            new NumericLiteral(i + this.lhs.type.index.minimum()),
+          );
           d.generate(environment);
-          var c =  new SingleCharacter("\x00");
-          commands.push( d.variable.set( c.generate(environment) ) );
+          var c = new SingleCharacter("\x00");
+          commands.push(d.variable.set(c.generate(environment)));
         }
 
-        return module.block( null, commands );
+        return module.block(null, commands);
       } else {
-        throw 'Only handle assignment of string literal to array.';
+        throw "Only handle assignment of string literal to array.";
       }
     }
 
     if ((this.rhs.type.name == "integer") && (this.lhs.type.name == "real")) {
       return environment.resolveVariable(this.lhs).set(
-        module.f32.convert_s.i32(rhs) );
+        module.f32.convert_s.i32(rhs),
+      );
     }
 
     var lhsType = environment.resolveType(this.lhs.type);
@@ -66,19 +81,18 @@ export default class Assignment {
 
     if ((width > 2) && (width != 4) && (width != 8)) {
       if (this.rhs.variable && this.lhs.variable) {
-
         var commands = [];
 
-        for(var i in this.rhs.type.fields) {
+        for (var i in this.rhs.type.fields) {
           var field = this.rhs.type.fields[i];
 
-          for(var j in field.names) {
+          for (var j in field.names) {
             var name = field.names[j];
 
-            commands.push( (new Assignment(
-              new Desig( this.lhs, name ),
-              new Desig( this.rhs, name )
-            )).generate(environment) );
+            commands.push((new Assignment(
+              new Desig(this.lhs, name),
+              new Desig(this.rhs, name),
+            )).generate(environment));
           }
         }
 
@@ -88,6 +102,6 @@ export default class Assignment {
       throw `Too big at ${this.lhs.type.bytes()}`;
     }
 
-    return this.lhs.variable.set( rhs );
+    return this.lhs.variable.set(rhs);
   }
-};
+}

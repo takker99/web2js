@@ -1,5 +1,5 @@
-import Binaryen from 'binaryen';
-const { i32, } = Binaryen;
+import Binaryen from "../deps/binaryen.ts";
+const { i32 } = Binaryen;
 
 export default class SubrangeType {
   /**
@@ -35,24 +35,29 @@ export default class SubrangeType {
     var min = this.minimum();
     var max = this.maximum();
 
-    if ((min == 0) && (max == 255))
+    if ((min == 0) && (max == 255)) {
       return 1;
+    }
 
-    if ((min == -127) && (max == 128))
+    if ((min == -127) && (max == 128)) {
       return 1;
+    }
 
-    if ((min == 0) && (max == 65535))
+    if ((min == 0) && (max == 65535)) {
       return 2;
+    }
 
-    if ((min == -32767) && (max == 32768))
+    if ((min == -32767) && (max == 32768)) {
       return 2;
+    }
 
     var b = Math.log(this.range(_)) / Math.log(256);
 
-    if (b <= 4)
+    if (b <= 4) {
       return 4;
+    }
 
-    throw 'Subrange too big.';
+    throw "Subrange too big.";
   }
 
   isInteger() {
@@ -67,12 +72,16 @@ export default class SubrangeType {
    * @param {{ isInteger: () => any; lower: { number: any; }; upper: { number: any; }; }} other
    */
   matches(other) {
-    if (other.isInteger())
+    if (other.isInteger()) {
       return true;
+    }
 
-    if ((this.lower.number == other.lower.number) &&
-      (this.upper.number == other.upper.number))
+    if (
+      (this.lower.number == other.lower.number) &&
+      (this.upper.number == other.upper.number)
+    ) {
       return true;
+    }
 
     return false;
   }
@@ -81,8 +90,10 @@ export default class SubrangeType {
    * @param {unknown} [_]
    */
   intish(_) {
-    if ((typeof this.upper.number == "number") &&
-      (typeof this.lower.number == "number")) {
+    if (
+      (typeof this.upper.number == "number") &&
+      (typeof this.lower.number == "number")
+    ) {
       var signed = "Uint";
       var r = this.upper.number - this.lower.number;
       if (this.lower.number < 0) {
@@ -90,11 +101,13 @@ export default class SubrangeType {
         signed = "Int";
       }
 
-      if (r <= 255)
+      if (r <= 255) {
         return `${signed}8`;
+      }
 
-      if (r <= 65536)
+      if (r <= 65536) {
         return `${signed}16`;
+      }
 
       return `${signed}32`;
     }

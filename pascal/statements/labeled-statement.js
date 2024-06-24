@@ -1,9 +1,8 @@
-
-import Environment from '../environment.js';
+import Environment from "../environment.js";
 
 var count = 1;
 
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class LabeledStatement {
@@ -32,16 +31,14 @@ export default class LabeledStatement {
     var loopLabel = `goto${count}`;
     count = count + 1;
 
-    environment.labels[ this.label ] = {
+    environment.labels[this.label] = {
       label: loopLabel,
-      generate: function(/** @type {{ module: any; }} */ environment) {
+      generate: function (/** @type {{ module: any; }} */ environment) {
         var module = environment.module;
-        return module.break( this.label );
-      }
+        return module.break(this.label);
+      },
     };
 
-    return module.loop( loopLabel,
-                        this.statement.generate( environment ) );
-
+    return module.loop(loopLabel, this.statement.generate(environment));
   }
-};
+}

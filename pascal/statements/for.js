@@ -1,11 +1,11 @@
-import Assignment from './assignment.js';
-import Operation from '../operation.js';
-import NumericLiteral from '../numeric-literal.js';
-import Identifier from '../identifier.js';
+import Assignment from "./assignment.js";
+import Operation from "../operation.js";
+import NumericLiteral from "../numeric-literal.js";
+import Identifier from "../identifier.js";
 
 var count = 1;
 
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class For {
@@ -52,24 +52,40 @@ export default class For {
     if (this.skip > 0) {
       initial = module.i32.le_s(this.start.generate(environment), end);
       condition = module.i32.eq(this.variable.generate(environment), end);
-      increment = new Assignment(this.variable, new Operation("+", this.variable, new NumericLiteral(1, new Identifier("integer"))));
+      increment = new Assignment(
+        this.variable,
+        new Operation(
+          "+",
+          this.variable,
+          new NumericLiteral(1, new Identifier("integer")),
+        ),
+      );
     } else {
       initial = module.i32.ge_s(this.start.generate(environment), end);
       condition = module.i32.eq(this.variable.generate(environment), end);
-      increment = new Assignment(this.variable, new Operation("-", this.variable, new NumericLiteral(1, new Identifier("integer"))));
+      increment = new Assignment(
+        this.variable,
+        new Operation(
+          "-",
+          this.variable,
+          new NumericLiteral(1, new Identifier("integer")),
+        ),
+      );
     }
 
-    var loop = module.block(blockLabel,
-      [assignment.generate(environment),
-      module.loop(loopLabel,
-        module.block(null, [this.statement.generate(environment),
-        module.if(condition,
-          module.break(blockLabel)),
-        increment.generate(environment),
-        module.break(loopLabel)
-        ]))
-      ]);
+    var loop = module.block(blockLabel, [
+      assignment.generate(environment),
+      module.loop(
+        loopLabel,
+        module.block(null, [
+          this.statement.generate(environment),
+          module.if(condition, module.break(blockLabel)),
+          increment.generate(environment),
+          module.break(loopLabel),
+        ]),
+      ),
+    ]);
 
     return module.if(initial, loop);
   }
-};
+}

@@ -1,73 +1,76 @@
-import { writeSync, openSync, readFileSync, statSync, write, close as _close, writeFileSync } from 'fs';
-import { stdin as _stdin, stdout as _stdout } from 'process';
-var callstack = [];
-var stackstack = [];
+import {
+  close as _close,
+  openSync,
+  readFileSync,
+  statSync,
+  write,
+  writeFileSync,
+  writeSync,
+} from "node:fs";
+import { stdin as _stdin, stdout as _stdout } from "node:process";
+import { execSync as exec } from "node:child_process";
+import { createInterface } from "node:readline";
+/**
+ * @type {{ filename: string; stdin?: boolean; position?: number; position2?: number; erstat: number; eoln?: boolean; content?: Buffer; descriptor?: number; stdout?: boolean; writing?: boolean; output?: never[]; }[]}
+ */
 var files = [];
 
-import { execSync as exec } from 'child_process';
 
+/**
+ * @type {Iterable<number> | ArrayBuffer | undefined}
+ */
 var memory = undefined;
+/**
+ * @type {string | any[] | ArrayBuffer | { valueOf(): ArrayBuffer | SharedArrayBuffer; } | undefined}
+ */
 var inputBuffer = undefined;
+/**
+ * @type {(() => void) | undefined}
+ */
 var callback = undefined;
 var texPool = "tex.pool";
 
+/**
+ * @type {{ asyncify_start_unwind: (arg0: number) => void; asyncify_start_rewind: (arg0: number) => void; main: () => void; asyncify_stop_rewind: () => void; }}
+ */
 let wasmExports;
+/**
+ * @type {Int32Array | number[]}
+ */
 let view;
 
-import { createInterface } from 'readline';
-
-const rl = createInterface({
-  input: _stdin,
-  output: _stdout,
-  prompt: ''
-});
 
 let window = {};
 
-let DATA_ADDR = 2400 * 1024 * 64;
-let END_ADDR = 2500 * 1024 * 64;
-let windingDepth = 0;
-let sleeping = false;
-
-function startUnwind() {
-  if (view) {
-    view[DATA_ADDR >> 2] = DATA_ADDR + 8;
-    view[DATA_ADDR + 4 >> 2] = END_ADDR;
-  }
-
-  wasmExports.asyncify_start_unwind(DATA_ADDR);
-  windingDepth = windingDepth + 1;
-}
-
-function startRewind() {
-  wasmExports.asyncify_start_rewind(DATA_ADDR);
-  wasmExports.main();
-  //if (windingDepth == 0) {
-  //callback();
-  //}
-}
-
-function stopRewind() {
-  windingDepth = windingDepth - 1;
-  wasmExports.asyncify_stop_rewind();
-}
-
+/**
+ * @param {Iterable<number>|ArrayBuffer|SharedArrayBuffer} m
+ */
 export function setMemory(m) {
   memory = m;
   view = new Int32Array(m);
 }
+/**
+ * @param {any} m
+ */
 export function setWasmExports(m) {
   wasmExports = m;
 }
+/**
+ * @param {string} m
+ */
 export function setTexPool(m) {
   texPool = m;
 }
+/**
+ * @param {any} input
+ * @param {CallableFunction=} cb
+ */
 export function setInput(input, cb) {
   inputBuffer = input;
   if (cb) callback = cb;
 }
 export function getCurrentMinutes() {
-  var d = (new Date());
+  var d = new Date();
   return 60 * (d.getHours()) + d.getMinutes();
 }
 export function getCurrentDay() {
@@ -79,6 +82,10 @@ export function getCurrentMonth() {
 export function getCurrentYear() {
   return (new Date()).getFullYear();
 }
+/**
+ * @param {number} descriptor
+ * @param {number | undefined} x
+ */
 export function printString(descriptor, x) {
   var file = (descriptor < 0) ? { stdout: true } : files[descriptor];
   var length = new Uint8Array(memory, x, 1)[0];
@@ -92,6 +99,10 @@ export function printString(descriptor, x) {
 
   writeSync(file.descriptor, string);
 }
+/**
+ * @param {number} descriptor
+ * @param {any} x
+ */
 export function printBoolean(descriptor, x) {
   var file = (descriptor < 0) ? { stdout: true } : files[descriptor];
 
@@ -104,6 +115,10 @@ export function printBoolean(descriptor, x) {
 
   writeSync(file.descriptor, result);
 }
+/**
+ * @param {number} descriptor
+ * @param {number} x
+ */
 export function printChar(descriptor, x) {
   var file = (descriptor < 0) ? { stdout: true } : files[descriptor];
   if (file.stdout) {
@@ -115,6 +130,10 @@ export function printChar(descriptor, x) {
   b[0] = x;
   writeSync(file.descriptor, b);
 }
+/**
+ * @param {number} descriptor
+ * @param {{ toString: () => string | NodeJS.ArrayBufferView; }} x
+ */
 export function printInteger(descriptor, x) {
   var file = (descriptor < 0) ? { stdout: true } : files[descriptor];
   if (file.stdout) {
@@ -124,6 +143,10 @@ export function printInteger(descriptor, x) {
 
   writeSync(file.descriptor, x.toString());
 }
+/**
+ * @param {number} descriptor
+ * @param {{ toString: () => string | NodeJS.ArrayBufferView; }} x
+ */
 export function printFloat(descriptor, x) {
   var file = (descriptor < 0) ? { stdout: true } : files[descriptor];
   if (file.stdout) {
@@ -133,7 +156,11 @@ export function printFloat(descriptor, x) {
 
   writeSync(file.descriptor, x.toString());
 }
-export function printNewline(descriptor, x) {
+/**
+ * @param {number} descriptor
+ * @param {any} x
+ */
+export function printNewline(descriptor) {
   var file = (descriptor < 0) ? { stdout: true } : files[descriptor];
   if (file.stdout) {
     _stdout.write("\n");
@@ -142,28 +169,32 @@ export function printNewline(descriptor, x) {
 
   writeSync(file.descriptor, "\n");
 }
+/**
+ * @param {number | undefined} length
+ * @param {number | undefined} pointer
+ */
 export function reset(length, pointer) {
   var buffer = new Uint8Array(memory, pointer, length);
   var filename = String.fromCharCode.apply(null, buffer);
 
-  filename = filename.replace(/\000+$/g, '');
+  filename = filename.replace(/\000+$/g, "");
 
-  if (filename.startsWith('{')) {
-    filename = filename.replace(/^{/g, '');
-    filename = filename.replace(/}.*/g, '');
+  if (filename.startsWith("{")) {
+    filename = filename.replace(/^{/g, "");
+    filename = filename.replace(/}.*/g, "");
   }
 
   if (filename.startsWith('"')) {
-    filename = filename.replace(/^"/g, '');
-    filename = filename.replace(/".*/g, '');
+    filename = filename.replace(/^"/g, "");
+    filename = filename.replace(/".*/g, "");
   }
 
-  filename = filename.replace(/ +$/g, '');
-  filename = filename.replace(/^\*/, '');
+  filename = filename.replace(/ +$/g, "");
+  filename = filename.replace(/^\*/, "");
 
-  filename = filename.replace(/^TeXfonts:/, '');
+  filename = filename.replace(/^TeXfonts:/, "");
 
-  if (filename == 'TeXformats:TEX.POOL') {
+  if (filename == "TeXformats:TEX.POOL") {
     filename = texPool;
   }
 
@@ -175,23 +206,22 @@ export function reset(length, pointer) {
       position2: 0,
       erstat: 0,
       eoln: false,
-      content: Buffer.from(inputBuffer)
+      content: Buffer.from(inputBuffer),
     });
     return files.length - 1;
   }
 
   try {
-    var path = exec('kpsewhich ' + filename).toString().split("\n")[0];
+    var path = exec("kpsewhich " + filename).toString().split("\n")[0];
   } catch (e) {
-
     // try again with basename
-    let basename = filename.slice(filename.lastIndexOf('/') + 1);
+    let basename = filename.slice(filename.lastIndexOf("/") + 1);
     try {
-      var path = exec('kpsewhich ' + basename).toString().split("\n")[0];
+      var path = exec("kpsewhich " + basename).toString().split("\n")[0];
       console.log(`Found filename #${filename}# via basename at #${path}#`);
     } catch (e) {
       // Give up, just create empty file
-      exec('touch ' + basename);
+      exec("touch " + basename);
       path = basename;
       console.log(`For filename #${filename}# created empty #${basename}#`);
     }
@@ -203,16 +233,20 @@ export function reset(length, pointer) {
     position2: 0,
     erstat: 0,
     eoln: false,
-    descriptor: openSync(path, 'r'),
-    content: readFileSync(path)
+    descriptor: openSync(path, "r"),
+    content: readFileSync(path),
   });
 
   return files.length - 1;
 }
+/**
+ * @param {number | undefined} length
+ * @param {number | undefined} pointer
+ */
 export function rewrite(length, pointer) {
   var buffer = new Uint8Array(memory, pointer, length);
   var filename = String.fromCharCode.apply(null, buffer);
-  filename = filename.replace(/ +$/g, '');
+  filename = filename.replace(/ +$/g, "");
 
   if (filename == "TTY:") {
     files.push({
@@ -229,30 +263,34 @@ export function rewrite(length, pointer) {
     writing: true,
     erstat: 0,
     output: [],
-    descriptor: openSync(filename, 'w')
+    descriptor: openSync(filename, "w"),
   });
 
   return files.length - 1;
 }
+/**
+ * @param {number | undefined} length
+ * @param {number | undefined} pointer
+ */
 export function getfilesize(length, pointer) {
   var buffer = new Uint8Array(memory, pointer, length);
   var filename = String.fromCharCode.apply(null, buffer);
 
-  if (filename.startsWith('{')) {
-    filename = filename.replace(/^{/g, '');
-    filename = filename.replace(/}.*/g, '');
+  if (filename.startsWith("{")) {
+    filename = filename.replace(/^{/g, "");
+    filename = filename.replace(/}.*/g, "");
   }
 
-  filename = filename.replace(/ +$/g, '');
-  filename = filename.replace(/^\*/, '');
-  filename = filename.replace(/^TeXfonts:/, '');
+  filename = filename.replace(/ +$/g, "");
+  filename = filename.replace(/^\*/, "");
+  filename = filename.replace(/^TeXfonts:/, "");
 
-  if (filename == 'TeXformats:TEX.POOL') {
+  if (filename == "TeXformats:TEX.POOL") {
     filename = "tex.pool";
   }
 
   try {
-    filename = exec('kpsewhich ' + filename).toString().split("\n")[0];
+    filename = exec("kpsewhich " + filename).toString().split("\n")[0];
   } catch (e) {
     try {
       var stats = statSync(filename);
@@ -265,6 +303,9 @@ export function getfilesize(length, pointer) {
 
   return 0;
 }
+/**
+ * @param {string | number} descriptor
+ */
 export function close(descriptor) {
   var file = files[descriptor];
 
@@ -277,30 +318,60 @@ export function close(descriptor) {
 
   files[descriptor] = {};
 }
+/**
+ * @param {string | number} descriptor
+ */
 export function eof(descriptor) {
   var file = files[descriptor];
 
-  if (file.eof)
+  if (file.eof) {
     return 1;
-
-  else
+  } else {
     return 0;
+  }
 }
+/**
+ * @param {string | number} descriptor
+ */
 export function erstat(descriptor) {
   var file = files[descriptor];
   return file.erstat;
 }
+/**
+ * @param {string | number} descriptor
+ */
 export function eoln(descriptor) {
   var file = files[descriptor];
 
-  if (file.eoln)
+  if (file.eoln) {
     return 1;
-
-  else
+  } else {
     return 0;
+  }
 }
-export function evaljs(str_number, str_poolp, str_startp, pool_ptrp, pool_size, max_strings,
-  eqtbp, active_base, eqtb_size, count_base) {
+/**
+ * @param {number} str_number
+ * @param {number | undefined} str_poolp
+ * @param {number | undefined} str_startp
+ * @param {number | undefined} pool_ptrp
+ * @param {number} pool_size
+ * @param {number} max_strings
+ * @param {number} eqtbp
+ * @param {number} active_base
+ * @param {any} eqtb_size
+ * @param {number} count_base
+ */
+export function evaljs(
+  str_number,
+  str_poolp,
+  str_startp,
+  pool_ptrp,
+  pool_size,
+  max_strings,
+  eqtbp,
+  active_base,
+  count_base,
+) {
   var str_start = new Uint32Array(memory, str_startp, max_strings + 1);
   var pool_ptr = new Uint32Array(memory, pool_ptrp, 1);
   var str_pool = new Uint8Array(memory, str_poolp, pool_size + 1);
@@ -308,40 +379,62 @@ export function evaljs(str_number, str_poolp, str_startp, pool_ptrp, pool_size, 
   var input = new Uint8Array(memory, str_poolp + str_start[str_number], length);
   var string = new TextDecoder("ascii").decode(input);
 
-  var count = new Uint32Array(memory, eqtbp + 8 * (count_base - active_base), 512);
+  var count = new Uint32Array(
+    memory,
+    eqtbp + 8 * (count_base - active_base),
+    512,
+  );
 
   const handler = {
-    get: function (target, prop, receiver) {
+    get: function (/** @type {any[]} */ target, /** @type {number} */ prop) {
       return target[2 * prop];
     },
-    set: function (target, prop, value) {
+    set: function (
+      /** @type {any[]} */ target,
+      /** @type {number} */ prop,
+      /** @type {any} */ value,
+    ) {
       target[2 * prop] = value;
-    }
+    },
   };
 
   var tex = {
-    print: function (s) {
-      const encoder = new TextEncoder('ascii');
+    print: function (/** @type {string | undefined} */ s) {
+      const encoder = new TextEncoder("ascii");
       const view = encoder.encode(s);
       const b = Buffer.from(view);
       str_pool.set(b, pool_ptr[0]);
       pool_ptr[0] += view.length;
     },
-    count: new Proxy(count, handler)
+    count: new Proxy(count, handler),
   };
 
-  var f = Function(['tex', 'window'], string);
+  var f = Function(["tex", "window"], string);
   f(tex, window);
 }
-export function inputln(descriptor, bypass_eoln, bufferp, firstp, lastp, max_buf_stackp, buf_size) {
+/**
+ * @param {string | number} descriptor
+ * @param {any} bypass_eoln
+ * @param {number | undefined} bufferp
+ * @param {number | undefined} firstp
+ * @param {number | undefined} lastp
+ * @param {number | undefined} max_buf_stackp
+ * @param {number | undefined} buf_size
+ */
+export function inputln(
+  descriptor,
+  bypass_eoln,
+  bufferp,
+  firstp,
+  lastp,
+  buf_size,
+) {
   var file = files[descriptor];
-  var last_nonblank = 0; // |last| with trailing blanks removed
 
   var buffer = new Uint8Array(memory, bufferp, buf_size);
   var first = new Uint32Array(memory, firstp, 1);
   var last = new Uint32Array(memory, lastp, 1);
   // FIXME: this should not be ignored
-  var max_buf_stack = new Uint32Array(memory, max_buf_stackp, 1);
 
   // cf.\ Matthew 19\thinspace:\thinspace30
   last[0] = first[0];
@@ -366,12 +459,18 @@ export function inputln(descriptor, bypass_eoln, bufferp, firstp, lastp, max_buf
     file.eof = true;
     return false;
   } else {
-    var bytesCopied = file.content.copy(buffer, first[0], file.position2, endOfLine);
+    var bytesCopied = file.content.copy(
+      buffer,
+      first[0],
+      file.position2,
+      endOfLine,
+    );
 
     last[0] = first[0] + bytesCopied;
 
-    while (buffer[last[0] - 1] == 32)
+    while (buffer[last[0] - 1] == 32) {
       last[0] = last[0] - 1;
+    }
 
     file.position2 = endOfLine;
     file.eoln = true;
@@ -379,6 +478,11 @@ export function inputln(descriptor, bypass_eoln, bufferp, firstp, lastp, max_buf
 
   return true;
 }
+/**
+ * @param {string | number} descriptor
+ * @param {string | number} pointer
+ * @param {any} length
+ */
 export function get(descriptor, pointer, length) {
   var file = files[descriptor];
 
@@ -395,7 +499,12 @@ export function get(descriptor, pointer, length) {
     if (file.descriptor) {
       let endOfCopy = Math.min(file.position + length, file.content.length);
 
-      var bytesCopied = file.content.copy(buffer, pointer, file.position, endOfCopy);
+      var bytesCopied = file.content.copy(
+        buffer,
+        pointer,
+        file.position,
+        endOfCopy,
+      );
 
       if (bytesCopied == 0) {
         buffer[pointer] = 0;
@@ -411,22 +520,30 @@ export function get(descriptor, pointer, length) {
   }
 
   file.eoln = false;
-  if (buffer[pointer] == 10)
+  if (buffer[pointer] == 10) {
     file.eoln = true;
-  if (buffer[pointer] == 13)
+  }
+  if (buffer[pointer] == 13) {
     file.eoln = true;
+  }
 
   file.position = file.position + length;
 }
+/**
+ * @param {string | number} descriptor
+ * @param {number | undefined} pointer
+ * @param {number | undefined} length
+ */
 export function put(descriptor, pointer, length) {
   var file = files[descriptor];
   var buffer = new Uint8Array(memory, pointer, length);
 
-  if (file.writing)
+  if (file.writing) {
     file.output.push(Buffer.from(buffer));
+  }
 }
 export function snapshot() {
-  console.log('(-snapshot-)');
-  writeFileSync('files.json', JSON.stringify(files));
+  console.log("(-snapshot-)");
+  writeFileSync("files.json", JSON.stringify(files));
   return 1;
 }

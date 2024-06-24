@@ -1,6 +1,5 @@
 import Environment from "./environment.js";
 
-
 export default class FileType {
   /**
    * @param {any} type
@@ -15,7 +14,7 @@ export default class FileType {
    * @param {unknown} [_]
    */
   binaryen(_) {
-    throw 'Cannot pass file by value';
+    throw "Cannot pass file by value";
   }
 
   /**
@@ -54,4 +53,4 @@ export default class FileType {
   generate(e) {
     return `file of type ${this.type.generate(e)}`;
   }
-};
+}

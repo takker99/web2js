@@ -1,12 +1,9 @@
-
-
 export default class RecordDeclaration {
   /**
-   *
    * @param {import("./identifier.js").default[]} names
-   * @param {import("./types.js").Type} type
+   * @param {import("./types.ts").Type} type
    */
-  constructor(names,type) {
+  constructor(names, type) {
     this.names = names;
     this.type = type;
   }
@@ -24,4 +21,4 @@ export default class RecordDeclaration {
   generate(e) {
     return `${this.names} = ${this.type.generate(e)}`;
   }
-};
+}

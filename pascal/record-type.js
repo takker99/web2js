@@ -1,8 +1,6 @@
-
-
 export default class RecordType {
   /**
-   * @param {import("./RecordSection.js").RecordSection[]} fields
+   * @param {import("./RecordSection.ts").RecordSection[]} fields
    * @param {boolean} [packed]
    */
   constructor(fields, packed) {
@@ -15,8 +13,12 @@ export default class RecordType {
    */
   bytes(e) {
     return this.fields
-      .map( function( f) { return f.bytes(e); } )
-      .reduce(function(/** @type {any} */ a, /** @type {any} */ b) { return a + b; }, 0);
+      .map(function (f) {
+        return f.bytes(e);
+      })
+      .reduce(function (/** @type {any} */ a, /** @type {any} */ b) {
+        return a + b;
+      }, 0);
   }
 
   /**
@@ -37,7 +39,13 @@ export default class RecordType {
    * @param {any} e
    */
   generate(e) {
-    return `record(${this.fields.map( function(/** @type {{ generate: (arg0: any) => any; }} */ t) { if (Array.isArray(t)) return "???"; else return t.generate(e); } ).join(',')})`;
+    return `record(${
+      this.fields.map(
+        function (/** @type {{ generate: (arg0: any) => any; }} */ t) {
+          if (Array.isArray(t)) return "???";
+          else return t.generate(e);
+        },
+      ).join(",")
+    })`;
   }
-
-};
+}

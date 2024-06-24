@@ -1,6 +1,6 @@
 var count = 1;
 
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class Repeat {
@@ -28,16 +28,20 @@ export default class Repeat {
     var blockLabel = `repeat${count}-done`;
     count = count + 1;
 
-    var loop = module.block( blockLabel,
-                             [ module.loop( loopLabel,
-                                            module.block( null, [ this.statement.generate(environment),
-                                                                  module.if( this.expression.generate(environment),
-                                                                             module.break( blockLabel ),
-                                                                             module.break( loopLabel )
-                                                                           ) ] )
-                                          )
-                             ] );
+    var loop = module.block(blockLabel, [
+      module.loop(
+        loopLabel,
+        module.block(null, [
+          this.statement.generate(environment),
+          module.if(
+            this.expression.generate(environment),
+            module.break(blockLabel),
+            module.break(loopLabel),
+          ),
+        ]),
+      ),
+    ]);
 
     return loop;
   }
-};
+}

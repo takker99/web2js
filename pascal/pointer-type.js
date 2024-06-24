@@ -1,5 +1,5 @@
-import Binaryen from 'binaryen';
-const { i32,  } = Binaryen;
+import Binaryen from "../deps/binaryen.ts";
+const { i32 } = Binaryen;
 
 export default class PointerType {
   /**
@@ -33,4 +33,4 @@ export default class PointerType {
   bytes(_) {
     return 4;
   }
-};
+}

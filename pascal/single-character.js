@@ -1,4 +1,4 @@
-import Identifier from './identifier.js';
+import Identifier from "./identifier.js";
 
 export default class SingleCharacter {
   /**
@@ -6,7 +6,7 @@ export default class SingleCharacter {
    */
   constructor(character) {
     this.character = character;
-    this.type = new Identifier('char');
+    this.type = new Identifier("char");
   }
 
   /**
@@ -17,4 +17,4 @@ export default class SingleCharacter {
     var c = this.character;
     return m.i32.const(c.charCodeAt(0));
   }
-};
+}

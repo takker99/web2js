@@ -1,8 +1,6 @@
-
-
 var count = 1;
 
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class While {
@@ -30,15 +28,20 @@ export default class While {
     var blockLabel = `while${count}-done`;
     count = count + 1;
 
-    var loop = module.block(blockLabel,
-      [module.loop(loopLabel,
-        module.if(this.expression.generate(environment),
-          module.block(null, [this.statement.generate(environment),
-          module.break(loopLabel)]),
-          module.break(blockLabel))
-      )]);
+    var loop = module.block(blockLabel, [
+      module.loop(
+        loopLabel,
+        module.if(
+          this.expression.generate(environment),
+          module.block(null, [
+            this.statement.generate(environment),
+            module.break(loopLabel),
+          ]),
+          module.break(blockLabel),
+        ),
+      ),
+    ]);
 
     return loop;
   }
-
-};
+}

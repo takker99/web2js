@@ -1,12 +1,11 @@
 import Environment from "./environment.js";
 
-
 export default class ExpressionWithWidth {
   /**
    * @param {any} expression
    * @param {number} width
    */
-  constructor(expression,width) {
+  constructor(expression, width) {
     this.expression = expression;
     this.width = width;
   }
@@ -18,4 +17,4 @@ export default class ExpressionWithWidth {
     // FIXME: ignore width specification
     return this.expression.generate(e);
   }
-};
+}

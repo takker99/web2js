@@ -1,7 +1,6 @@
-
-import Binaryen from 'binaryen';
-import Environment from './environment.js';
-import Identifier from './identifier.js';
+import Binaryen from "../deps/binaryen.ts";
+import Environment from "./environment.js";
+import Identifier from "./identifier.js";
 
 export default class NumericLiteral {
   /**
@@ -11,10 +10,11 @@ export default class NumericLiteral {
   constructor(n, type) {
     this.number = n;
 
-    if (type)
+    if (type) {
       this.type = type;
-    else
+    } else {
       this.type = new Identifier("integer");
+    }
   }
 
   /**
@@ -25,16 +25,19 @@ export default class NumericLiteral {
     environment = new Environment(environment);
     var m = environment.module;
 
-    if (this.type.name == "integer")
-      return m.i32.const( this.number );
+    if (this.type.name == "integer") {
+      return m.i32.const(this.number);
+    }
 
-    if (this.type.name == "boolean")
-      return m.i32.const( this.number );
+    if (this.type.name == "boolean") {
+      return m.i32.const(this.number);
+    }
 
-    if (this.type.name == "real")
-      return m.f32.const( this.number );
+    if (this.type.name == "real") {
+      return m.f32.const(this.number);
+    }
 
     throw `Could not create numeric constant for ${this.number} with ${this.type}`;
     return m.nop();
   }
-};
+}

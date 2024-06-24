@@ -1,13 +1,12 @@
-
-import Identifier from './identifier.js';
+import Identifier from "./identifier.js";
 
 export default class StringLiteral {
   /**
    * @param {string} text
    */
   constructor(text) {
-    this.text = text.replace(/^'/,'').replace(/'$/,'').replace(/''/,"'");
-    this.type = new Identifier('string');
+    this.text = text.replace(/^'/, "").replace(/'$/, "").replace(/''/, "'");
+    this.type = new Identifier("string");
   }
 
   /**
@@ -16,8 +15,8 @@ export default class StringLiteral {
   generate(environment) {
     var t = this.text;
     var module = environment.module;
-    var pointer = environment.program.memory.allocateString( t );
+    var pointer = environment.program.memory.allocateString(t);
 
-    return module.i32.const( pointer );
+    return module.i32.const(pointer);
   }
-};
+}

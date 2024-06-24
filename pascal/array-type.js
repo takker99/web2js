@@ -1,6 +1,6 @@
-import Environment from './environment.js';
-import Identifier from './identifier.js';
-import SubrangeType from './subrange-type.js';
+import Environment from "./environment.js";
+import Identifier from "./identifier.js";
+import SubrangeType from "./subrange-type.js";
 
 export default class ArrayType {
   /**
@@ -37,6 +37,8 @@ export default class ArrayType {
    * @param {Environment} e
    */
   generate(e) {
-    return `array indexed by ${this.index.generate(e)} of ${this.componentType.generate(e)}`;
+    return `array indexed by ${this.index.generate(e)} of ${
+      this.componentType.generate(e)
+    }`;
   }
-};
+}

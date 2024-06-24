@@ -1,6 +1,5 @@
-
-import Binaryen from 'binaryen';
-import Environment from './environment.js';
+import Binaryen from "../deps/binaryen.ts";
+import Environment from "./environment.js";
 const { i32, f32 } = Binaryen;
 
 export default class Identifier {
@@ -12,27 +11,33 @@ export default class Identifier {
   }
 
   minimum() {
-    if (this.name == "integer")
+    if (this.name == "integer") {
       return -2147483647;
+    }
 
-    if (this.name == "char")
+    if (this.name == "char") {
       return 0;
+    }
 
-    if (this.name == "boolean")
+    if (this.name == "boolean") {
       return 0;
+    }
 
     throw `Cannot find mimumum value of ${this.name}`;
   }
 
   maximum() {
-    if (this.name == "integer")
+    if (this.name == "integer") {
       return 2147483648;
+    }
 
-    if (this.name == "char")
+    if (this.name == "char") {
       return 255;
+    }
 
-    if (this.name == "boolean")
+    if (this.name == "boolean") {
       return 0;
+    }
 
     throw `Cannot find maximum value of ${this.name}`;
   }
@@ -42,14 +47,17 @@ export default class Identifier {
    * @returns {string}
    */
   range(_) {
-    if (this.name == "integer")
+    if (this.name == "integer") {
       throw "Cannot index by integers";
+    }
 
-    if (this.name == "char")
+    if (this.name == "char") {
       return "256";
+    }
 
-    if (this.name == "boolean")
+    if (this.name == "boolean") {
       return "2";
+    }
 
     throw "Cannot index by unknown type";
   }
@@ -58,24 +66,29 @@ export default class Identifier {
    * @param {unknown} _
    */
   binaryen(_) {
-    if (this.name == "integer")
+    if (this.name == "integer") {
       return i32;
+    }
 
-    if (this.name == "char")
+    if (this.name == "char") {
       return i32;
+    }
 
-    if (this.name == "boolean")
+    if (this.name == "boolean") {
       return i32;
+    }
 
-    if (this.name == "real")
+    if (this.name == "real") {
       return f32;
+    }
 
     throw "Cannot identify binaryen type";
   }
 
   isInteger() {
-    if (this.name == "integer")
+    if (this.name == "integer") {
       return true;
+    }
 
     return false;
   }
@@ -84,20 +97,25 @@ export default class Identifier {
    * @param {any} e
    */
   bytes(e) {
-    if (this.name == "integer")
+    if (this.name == "integer") {
       return 4;
+    }
 
-    if (this.name == "char")
+    if (this.name == "char") {
       return 1;
+    }
 
-    if (this.name == "boolean")
+    if (this.name == "boolean") {
       return 1;
+    }
 
-    if (this.name == "real")
+    if (this.name == "real") {
       return 4;
+    }
 
-    if (this.name == "string")
+    if (this.name == "string") {
       return 4;
+    }
 
     console.trace();
 
@@ -108,11 +126,13 @@ export default class Identifier {
    * @param {{ lower: any; upper: any; name: any; }} other
    */
   matches(other) {
-    if ((this.name == "integer") && (other.lower && other.upper))
+    if ((this.name == "integer") && (other.lower && other.upper)) {
       return true;
+    }
 
-    if (this.name == other.name)
+    if (this.name == other.name) {
       return true;
+    }
 
     return false;
   }
@@ -173,4 +193,4 @@ export default class Identifier {
 
     return v.get();
   }
-};
+}

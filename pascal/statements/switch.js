@@ -1,4 +1,4 @@
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class Switch {
@@ -17,7 +17,7 @@ export default class Switch {
      * @type {string[]}
      */
     var g = [];
-    this.cases.forEach( function( f) {
+    this.cases.forEach(function (f) {
       g = g.concat(f.gotos());
     });
     return g;
@@ -38,9 +38,9 @@ export default class Switch {
       var condition = c[0];
       var result = c[1];
 
-      previous = m.if( condition, result, previous );
+      previous = m.if(condition, result, previous);
     }
 
     return previous;
   }
-};
+}

@@ -1,6 +1,6 @@
-import Environment from '../environment.js';
+import Environment from "../environment.js";
 
-/** @typedef{import("../statement.js").Statement} Statement */
+/** @typedef{import("../statement.ts").Statement} Statement */
 
 /** @implements{Statement} */
 export default class Nop {
@@ -20,4 +20,4 @@ export default class Nop {
     var m = environment.module;
     return m.nop();
   }
-};
+}
